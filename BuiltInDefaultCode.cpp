@@ -1,3 +1,5 @@
+// now with open-source!
+
 #include "WPILib.h"
 #include "BuiltInDefaultCode.h"
 #include <math.h>
@@ -30,7 +32,7 @@
 // It may not matter which is left and which is right
 //#define RIGHT_ARM_MOTOR 6
 //#define LEFT_ARM_MOTOR 5
-
+// this comment makes no sense like this code.
 // definitions of the motors for the MiniBot deployment system
 // These define which PWM controls are used for each motor.
 //#define MINIBOT_MOTOR1 7
@@ -881,7 +883,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"right:%f",m_RightStickY);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
-	//END OF TELEOPERATED PERIODIC CODE
+	//END OF TELEOPERATED PERIODIC CODE (Not really)
+	//Nathan is the best and definetly wrote this entire code
 }
 
 START_ROBOT_CLASS(BuiltinDefaultCode);
