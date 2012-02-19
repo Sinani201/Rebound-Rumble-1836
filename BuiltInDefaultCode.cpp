@@ -125,8 +125,16 @@ int StartTask(BuiltinDefaultCode *bot)
 BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	printf("BuiltinDefaultCode Constructor Started\n");
 	
+	m_frontLeftVictor = new Victor(9);
+	m_rearLeftVictor = new Victor(10);
+	m_frontRightVictor = new Victor(7);
+	m_rearRightVictor = new Victor(8);
+	
 	// Create a robot using standard right/left robot drive on PWMS 1, 2, 3, and #4
-	m_robotDrive = new RobotDrive(9, 10, 7, 8);
+	m_robotDrive = new RobotDrive(m_frontLeftVictor,
+								  m_rearLeftVictor,
+								  m_frontRightVictor,
+								  m_rearRightVictor);
 	
 	// test for all Victors
 	three = new Victor(3);
@@ -177,7 +185,7 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	
 	// achannel and bchannel are set to 1 and 2, but those probably
 	// aren't the right values
-	m_Encoder = new Encoder(1,2,false,Encoder::k2X);
+	//m_Encoder = new Encoder(1,2,false,Encoder::k2X);
 	
 	if(DEFAULT_GEAR == 1)
 	{

@@ -5,6 +5,11 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// Declare variable for the robot drive system
 	RobotDrive *m_robotDrive;		// robot will use PWM 1-4 for drive motors
 	
+	Victor *m_frontLeftVictor;
+	Victor *m_frontRightVictor;
+	Victor *m_rearLeftVictor;
+	Victor *m_rearRightVictor;
+	
 	// Declare a variable to use to access the driver station object
 	DriverStation *m_ds;						// driver station object
 	UINT32 m_priorPacketNumber;					// keep track of the most recent packet number from the DS
