@@ -78,7 +78,6 @@
 // The Relay Switch is a relay switch channel
 #define PRESSURE_SWITCH_CHANNEL 4
 #define RELAY_SWITCH_CHANNEL 3
-
 #define DEFAULT_GEAR 1
 
 // Define the various constants that we will use during autonomous mode
@@ -195,6 +194,8 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 		m_Solenoid1->Set(false);
 		m_Solenoid2->Set(true);
 	}
+
+	
 	
 	//m_Solenoid3->Set(true);
 	//m_Solenoid4->Set(false);
@@ -231,7 +232,6 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_visionPeriodicLoops = 0;
 	m_disabledPeriodicLoops = 0;
 	m_telePeriodicLoops = 0;
-	m_speedScale = 1;
 
 	printf("BuiltinDefaultCode Constructor Completed\n");
 }
@@ -726,7 +726,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			MiniSolenoid2On = true;
 			
 		}
-		
 		// Set the solenoids to the current value of their control variables.
 		*/
 		
@@ -746,33 +745,14 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			solenoid1On = false;
 			solenoid2On = true;
 			m_selectedGear = 2;
-			m_speedScale = 1;
 		}
-		// if right bumber was released, and solenoid 2 is already on, scale the motors to become slower
-		else if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid2On)
-		{
-			// If the speed has been halved, bring it back to normal
-			if(m_speedScale == 1)
-			{
-				m_speedScale = 2;
-			} else {
-				m_speedScale = 1;
-			}
 		// same stuff here, with solenoid 1
-		} else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
-			solenoid1On = true;
+		else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
 			solenoid2On = false;
+			solenoid1On = true;
 			m_selectedGear = 1;
-			m_speedScale = 1;
-		} else if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
-		{
-			if(m_speedScale == 1)
-			{
-				m_speedScale = 2;
-			} else {
-				m_speedScale = 1;
-			}
 		}
+
 		/*
 		// Control the bridge mechanism with solenoids
 		if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
@@ -813,11 +793,11 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			m_lastButton='R';
 		}
 	
-	m_LeftStickX = m_xbox->GetRawAxis(XBOX_LSX);
-	m_LeftStickY = m_xbox->GetRawAxis(XBOX_LSY);
-	m_RightStickX= m_xbox->GetRawAxis(XBOX_RSX);
-	m_RightStickY= m_xbox->GetRawAxis(XBOX_RSY);
-	m_ArmStickY  = m_xbox->GetRawAxis(XBOX_TRIG);
+	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
+	m_LeftStickY	= m_xbox->GetRawAxis(XBOX_LSY);
+	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
+	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
+	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
 	m_Solenoid1->Set(solenoid1On);
 	m_Solenoid2->Set(solenoid2On);
 	
@@ -858,7 +838,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			selectedParticle++;
 		}
 	}
-	
+
 	if(m_xbox->GetRawButton(XBOX_Y))
 	{
 		if(lum < 219)
@@ -891,6 +871,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	float leftspeed;
 	float rightspeed;
 	
+	if(fabs(m_Trig > 0.001))
+	{
+		m_LeftStickY = m_Trig;
+		m_RightStickY= m_Trig;
+	}
+
 	if(m_xbox->GetRawButton(XBOX_X))
 	{
 		spinspeed = selReport.center_mass_x_normalized/3;
@@ -912,7 +898,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		} else {
 			rightspeed = 0;
 		}
-		m_robotDrive->TankDrive(leftspeed / m_speedScale,rightspeed / m_speedScale);
+		m_robotDrive->TankDrive(leftspeed,rightspeed);
 	}
 	
 	// set buttonLastPressed
@@ -937,7 +923,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"left: %f",m_LeftStickY);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"right:%f",m_RightStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,VL:%d,G:%d,S:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear,m_speedScale);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,VL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
 	//Nathan is the best and definetly wrote this entire code

@@ -74,9 +74,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	float m_LeftStickY;
 	float m_RightStickX;
 	float m_RightStickY;
-	float m_ArmStickY;
-	
-	int m_speedScale;
+	float m_Trig;
 	
 	// Local variables to count the number of periodic loops performed
 	UINT32 m_autoPeriodicLoops;
