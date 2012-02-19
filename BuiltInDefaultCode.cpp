@@ -873,6 +873,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	float leftspeed;
 	float rightspeed;
 	
+	// Logarithmic function allows more variance for slower speeds
 	if(m_Trig > 0.001)
 	{
 		leftspeed   = log(m_Trig*2.718281);
