@@ -8,7 +8,7 @@
 //MILKEN SPECIFIC definitions
 // Code revision (if this didn't udpate on the driver
 // station, the code didn't go through)
-#define CODE_REV 2
+#define CODE_REV 3
 
 // definitions of the xbox controllers buttons/triggers/sticks
 #define XBOX_A		1
@@ -196,8 +196,8 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 		m_Solenoid2->Set(true);
 	}
 	
-	m_Solenoid3->Set(true);
-	m_Solenoid4->Set(false);
+	//m_Solenoid3->Set(true);
+	//m_Solenoid4->Set(false);
 	
 	// Set up the two solenoids for the minibot deployment system
 	//m_MiniSolenoid1 = new Solenoid(MINI_SOLENOID1);
@@ -773,7 +773,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 				m_speedScale = 1;
 			}
 		}
-		
+		/*
 		// Control the bridge mechanism with solenoids
 		if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
 		{
@@ -786,7 +786,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 				m_Solenoid4->Set(false);
 			}
 		}
-		
+		*/
 		if (m_xbox->GetRawButton(XBOX_X))
 		{
 			m_lastButton='x';
