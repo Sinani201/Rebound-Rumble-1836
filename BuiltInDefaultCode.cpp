@@ -196,6 +196,9 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 		m_Solenoid2->Set(true);
 	}
 	
+	m_Solenoid3->Set(true);
+	m_Solenoid4->Set(false);
+	
 	// Set up the two solenoids for the minibot deployment system
 	//m_MiniSolenoid1 = new Solenoid(MINI_SOLENOID1);
 	//m_MiniSolenoid2 = new Solenoid(MINI_SOLENOID2);
@@ -748,13 +751,14 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		// if right bumber was released, and solenoid 2 is already on, scale the motors to become slower
 		else if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid2On)
 		{
+			// If the speed has been halved, bring it back to normal
 			if(m_speedScale == 1)
 			{
 				m_speedScale = 2;
 			} else {
 				m_speedScale = 1;
 			}
-		// same stuff here
+		// same stuff here, with solenoid 1
 		} else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
 			solenoid1On = true;
 			solenoid2On = false;
@@ -767,6 +771,19 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 				m_speedScale = 2;
 			} else {
 				m_speedScale = 1;
+			}
+		}
+		
+		// Control the bridge mechanism with solenoids
+		if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
+		{
+			if(m_Solenoid3->Get())
+			{
+				m_Solenoid3->Set(false);
+				m_Solenoid4->Set(true);
+			} else {
+				m_Solenoid3->Set(true);
+				m_Solenoid4->Set(false);
 			}
 		}
 		
@@ -910,6 +927,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		buttonLastPressed[XBOX_LB] = true;
 	} else {
 		buttonLastPressed[XBOX_LB] = false;
+	}
+	if (m_xbox->GetRawButton(XBOX_LJ))
+	{
+		buttonLastPressed[XBOX_LJ] = true;
+	} else {
+		buttonLastPressed[XBOX_LJ] = false;
 	}
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"left: %f",m_LeftStickY);

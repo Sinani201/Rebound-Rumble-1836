@@ -41,12 +41,14 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// the claw.
 	Compressor *claw_compressor;
 	
-	
 	//MILKEN CODE
 	// Pointers to the two solenoid objects for the claw and the two for the minibot
 	// delpoyment system
 	Solenoid *m_Solenoid1;
 	Solenoid *m_Solenoid2;
+	Solenoid *m_Solenoid3;
+	Solenoid *m_Solenoid4;
+	
 	int m_selectedGear;
 	//Solenoid *m_MiniSolenoid1;
 	//Solenoid *m_MiniSolenoid2;
