@@ -873,10 +873,14 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	float leftspeed;
 	float rightspeed;
 	
-	if(fabs(m_Trig > 0.001))
+	if(m_Trig > 0.001)
 	{
-		m_LeftStickY = log(m_Trig);
-		m_RightStickY= log(m_Trig);
+		leftspeed   = log(m_Trig*2.718281);
+		rightspeed	= log(m_Trig*2.718281);
+	} else if (m_Trig < -0.001)
+	{
+		leftspeed	= 0-log(fabs(m_Trig*2.718281));
+		rightspeed	= 0-log(fabs(m_Trig*2.718281));
 	}
 
 	if(m_xbox->GetRawButton(XBOX_X))
