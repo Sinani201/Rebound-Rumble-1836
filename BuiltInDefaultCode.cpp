@@ -213,6 +213,8 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	//m_MiniSolenoid1->Set(0);
 	//m_MiniSolenoid2->Set(0);
 	
+	
+	
 	// set up the camera task
 	m_vision = new Task("Vision",(FUNCPTR)StartTask);
 	
@@ -873,8 +875,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	
 	if(fabs(m_Trig > 0.001))
 	{
-		m_LeftStickY = m_Trig;
-		m_RightStickY= m_Trig;
+		m_LeftStickY = log(m_Trig);
+		m_RightStickY= log(m_Trig);
 	}
 
 	if(m_xbox->GetRawButton(XBOX_X))
