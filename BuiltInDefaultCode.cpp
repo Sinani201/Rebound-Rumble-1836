@@ -727,24 +727,18 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		{
 			m_lastButton = 'b';
 		}
-		//if(m_lastButton == 'b');
-		//{
 		
-		if (m_pressb && !m_xbox->GetRawButton(XBOX_B))
+		if (m_xbox->GetRawButton(XBOX_RB) && solenoid1On)
 		{
-			if(solenoid1On)
-			{
-				solenoid1On = false;
-				solenoid2On = true;
-				m_selectedGear = 2;
-			} else {
-				solenoid1On = true;
-				solenoid2On = false;
-				m_selectedGear = 1;
-			}
-			m_lastButton='b';
-		} 
-		//}
+			solenoid1On = false;
+			solenoid2On = true;
+			m_selectedGear = 2;
+		} else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
+			solenoid1On = true;
+			solenoid2On = false;
+			m_selectedGear = 1;
+		}
+		
 		if (m_xbox->GetRawButton(XBOX_X))
 		{
 			m_lastButton='x';
@@ -873,12 +867,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		m_robotDrive->TankDrive(leftspeed,rightspeed);
 	}
 	
-	if(m_xbox->GetRawButton(XBOX_B))
-	{
-		m_pressb = true;
-	} else {
-		m_pressb = false;
-	}
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"left: %f",m_LeftStickY);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"right:%f",m_RightStickY);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);

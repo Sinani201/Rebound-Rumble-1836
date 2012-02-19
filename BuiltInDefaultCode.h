@@ -70,7 +70,6 @@ class BuiltinDefaultCode : public IterativeRobot {
 	UINT32 m_disabledPeriodicLoops;
 	UINT32 m_telePeriodicLoops;
 	char m_lastButton;
-	bool m_pressb;
 	
 	// variable to count number of seconds elasped in autonomous mode 
 	double m_auto_num_secs;
