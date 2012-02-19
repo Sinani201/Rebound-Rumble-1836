@@ -8,7 +8,7 @@
 //MILKEN SPECIFIC definitions
 // Code revision (if this didn't udpate on the driver
 // station, the code didn't go through)
-#define CODE_REV 1
+#define CODE_REV 2
 
 // definitions of the xbox controllers buttons/triggers/sticks
 #define XBOX_A		1
@@ -228,7 +228,7 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_visionPeriodicLoops = 0;
 	m_disabledPeriodicLoops = 0;
 	m_telePeriodicLoops = 0;
-	
+	m_speedScale = 1;
 
 	printf("BuiltinDefaultCode Constructor Completed\n");
 }
@@ -736,15 +736,38 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			m_lastButton = 'b';
 		}
 		
-		if (m_xbox->GetRawButton(XBOX_RB) && solenoid1On)
+		// Solenoid controls
+		// if right bumper was released, and solenoid 1 is on, turn on solenoid2
+		if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
 		{
 			solenoid1On = false;
 			solenoid2On = true;
 			m_selectedGear = 2;
+			m_speedScale = 1;
+		}
+		// if right bumber was released, and solenoid 2 is already on, scale the motors to become slower
+		else if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid2On)
+		{
+			if(m_speedScale == 1)
+			{
+				m_speedScale = 2;
+			} else {
+				m_speedScale = 1;
+			}
+		// same stuff here
 		} else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
 			solenoid1On = true;
 			solenoid2On = false;
 			m_selectedGear = 1;
+			m_speedScale = 1;
+		} else if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
+		{
+			if(m_speedScale == 1)
+			{
+				m_speedScale = 2;
+			} else {
+				m_speedScale = 1;
+			}
 		}
 		
 		if (m_xbox->GetRawButton(XBOX_X))
@@ -872,12 +895,26 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		} else {
 			rightspeed = 0;
 		}
-		m_robotDrive->TankDrive(leftspeed,rightspeed);
+		m_robotDrive->TankDrive(leftspeed / m_speedScale,rightspeed / m_speedScale);
+	}
+	
+	// set buttonLastPressed
+	if (m_xbox->GetRawButton(XBOX_RB))
+	{
+		buttonLastPressed[XBOX_RB] = true;
+	} else {
+		buttonLastPressed[XBOX_RB] = false;
+	}
+	if (m_xbox->GetRawButton(XBOX_LB))
+	{
+		buttonLastPressed[XBOX_LB] = true;
+	} else {
+		buttonLastPressed[XBOX_LB] = false;
 	}
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"left: %f",m_LeftStickY);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"right:%f",m_RightStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,VL:%d,G:%d,S:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear,m_speedScale);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
 	//Nathan is the best and definetly wrote this entire code

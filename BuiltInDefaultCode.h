@@ -23,6 +23,11 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// The xbox controller (this is probably what we will end up using)
 	Joystick *m_xbox;
 	
+	// This checks if the button was pressed in the last loop
+	// Allows us to see when a button has been released rather than
+	// pressed
+	bool buttonLastPressed[10];
+	
 	//MILKEN CODE
 	// Declare variables for the arm motors being used
 	//Victor *arm_leftmotor;	
@@ -68,6 +73,8 @@ class BuiltinDefaultCode : public IterativeRobot {
 	float m_RightStickX;
 	float m_RightStickY;
 	float m_ArmStickY;
+	
+	int m_speedScale;
 	
 	// Local variables to count the number of periodic loops performed
 	UINT32 m_autoPeriodicLoops;
