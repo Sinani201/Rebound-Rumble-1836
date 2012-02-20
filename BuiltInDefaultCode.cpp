@@ -907,6 +907,21 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		rightspeed	-= pow(1.8,fabs(m_Trig))-0.8;
 	}
 
+	if(leftspeed > 1)
+	{
+		leftspeed = 1;
+	} else if(leftspeed < -1)
+	{
+		leftspeed = -1;
+	}
+	if(rightspeed > 1)
+	{
+		rightspeed = 1;
+	} else if(rightspeed < -1)
+	{
+		rightspeed = -1;
+	}
+
 
 	m_robotDrive->TankDrive(leftspeed,rightspeed);
 	
