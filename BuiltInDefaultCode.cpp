@@ -876,12 +876,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Logarithmic function allows more variance for slower speeds
 	if(m_Trig > 0.001)
 	{
-		leftspeed   = log(m_Trig*2.718281);
-		rightspeed	= log(m_Trig*2.718281);
+		leftspeed   = pow(2,m_Trig)-1;
+		rightspeed	= pow(2,m_Trig)-1;
 	} else if (m_Trig < -0.001)
 	{
-		leftspeed	= 0-log(fabs(m_Trig*2.718281));
-		rightspeed	= 0-log(fabs(m_Trig*2.718281));
+		leftspeed	= 0-(pow(2,fabs(m_Trig))-1);
+		rightspeed	= 0-(pow(2,fabs(m_Trig))-1);
 	}
 
 	if(m_xbox->GetRawButton(XBOX_X))
