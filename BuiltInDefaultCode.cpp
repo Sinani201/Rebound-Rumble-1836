@@ -873,17 +873,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	float leftspeed;
 	float rightspeed;
 	
-	// Logarithmic function allows more variance for slower speeds
-	if(m_Trig > 0.001)
-	{
-		leftspeed   = pow(2,m_Trig)-1;
-		rightspeed	= pow(2,m_Trig)-1;
-	} else if (m_Trig < -0.001)
-	{
-		leftspeed	= 0-(pow(2,fabs(m_Trig))-1);
-		rightspeed	= 0-(pow(2,fabs(m_Trig))-1);
-	}
-
 	if(m_xbox->GetRawButton(XBOX_X))
 	{
 		spinspeed = selReport.center_mass_x_normalized/3;
@@ -905,8 +894,21 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		} else {
 			rightspeed = 0;
 		}
-		m_robotDrive->TankDrive(leftspeed,rightspeed);
 	}
+
+	// Logarithmic function allows more variance for slower speeds
+	if(m_Trig > 0.0001)
+	{
+		leftspeed   += pow(1.8,m_Trig)-0.8;
+		rightspeed	+= pow(1.8,m_Trig)-0.8;
+	} else if (m_Trig < -0.0001)
+	{
+		leftspeed	-= pow(1.8,fabs(m_Trig))-0.8;
+		rightspeed	-= pow(1.8,fabs(m_Trig))-0.8;
+	}
+
+
+	m_robotDrive->TankDrive(leftspeed,rightspeed);
 	
 	// set buttonLastPressed
 	if (m_xbox->GetRawButton(XBOX_RB))
