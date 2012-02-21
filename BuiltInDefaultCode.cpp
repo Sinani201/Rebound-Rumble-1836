@@ -128,6 +128,8 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_rearLeftVictor = new Victor(10);
 	m_frontRightVictor = new Victor(7);
 	m_rearRightVictor = new Victor(8);
+	m_ingestionVictor1= new Victor(3);
+	m_ingestionVictor2= new Victor(5);
 	
 	// Create a robot using standard right/left robot drive on PWMS 1, 2, 3, and #4
 	m_robotDrive = new RobotDrive(m_frontLeftVictor,
@@ -136,9 +138,9 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 								  m_rearRightVictor);
 	
 	// test for all Victors
-	three = new Victor(3);
+	//three = new Victor(3);
 	four = new Victor(4);
-	five = new Victor(5);
+	//five = new Victor(5);
 	six = new Victor(6);
 	nine = new Victor(1);
 	ten = new Victor(2);
@@ -180,11 +182,13 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	claw_compressor = new Compressor(PRESSURE_SWITCH_CHANNEL,RELAY_SWITCH_CHANNEL);
 	m_Solenoid1 = new Solenoid(1);
 	m_Solenoid2 = new Solenoid(2);
+	m_Solenoid3 = new Solenoid(3);
+	m_Solenoid4 = new Solenoid(4);
 	m_selectedGear = DEFAULT_GEAR;
 	
 	// achannel and bchannel are set to 1 and 2, but those probably
 	// aren't the right values
-	//m_Encoder = new Encoder(1,2,false,Encoder::k2X);
+	m_Encoder = new Encoder(1,2,false,Encoder::k2X);
 	
 	if(DEFAULT_GEAR == 1)
 	{
@@ -194,11 +198,9 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 		m_Solenoid1->Set(false);
 		m_Solenoid2->Set(true);
 	}
-
 	
-	
-	//m_Solenoid3->Set(true);
-	//m_Solenoid4->Set(false);
+	m_Solenoid3->Set(true);
+	m_Solenoid4->Set(false);
 	
 	// Set up the two solenoids for the minibot deployment system
 	//m_MiniSolenoid1 = new Solenoid(MINI_SOLENOID1);
@@ -755,7 +757,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			m_selectedGear = 1;
 		}
 
-		/*
 		// Control the bridge mechanism with solenoids
 		if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
 		{
@@ -768,7 +769,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 				m_Solenoid4->Set(false);
 			}
 		}
-		*/
+
 		if (m_xbox->GetRawButton(XBOX_X))
 		{
 			m_lastButton='x';
@@ -922,9 +923,20 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		rightspeed = -1;
 	}
 
+	// Ingestion victors controlled by right joystick button
+	if (m_xbox->GetRawButton(XBOX_RJ))
+	{
+		m_ingestionVictor1->Set(1);
+		m_ingestionVictor2->Set(1);
+	} else {
+		m_ingestionVictor1->Set(0);
+		m_ingestionVictor2->Set(0);
+	}
 
-	m_robotDrive->TankDrive(leftspeed,rightspeed);
-	
+
+	//m_robotDrive->TankDrive(leftspeed,rightspeed);
+	m_robotDrive->ArcadeDrive(m_xbox,true);
+
 	// set buttonLastPressed
 	if (m_xbox->GetRawButton(XBOX_RB))
 	{
@@ -944,13 +956,14 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	} else {
 		buttonLastPressed[XBOX_LJ] = false;
 	}
+
+	// Encoder stuff!
+	int encoderRaw = m_Encoder->GetRaw();
 	
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"left: %f",m_LeftStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"right:%f",m_RightStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,VL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"E:%d",encoderRaw);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
-	//Nathan is the best and definetly wrote this entire code
 }
 
 START_ROBOT_CLASS(BuiltinDefaultCode);

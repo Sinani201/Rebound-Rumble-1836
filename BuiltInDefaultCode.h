@@ -9,6 +9,8 @@ class BuiltinDefaultCode : public IterativeRobot {
 	Victor *m_frontRightVictor;
 	Victor *m_rearLeftVictor;
 	Victor *m_rearRightVictor;
+	Victor *m_ingestionVictor1;
+	Victor *m_ingestionVictor2;
 	
 	// Declare a variable to use to access the driver station object
 	DriverStation *m_ds;						// driver station object
@@ -104,9 +106,9 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// All victors
 	//Victor *one;
 	//Victor *two;
-	Victor *three;
+	//Victor *three;
 	Victor *four;
-	Victor *five;
+	//Victor *five;
 	Victor *six;
 	Victor *nine;
 	Victor *ten;
