@@ -390,13 +390,16 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Ingestion victors controlled by right joystick button
-	if (m_xbox->GetRawButton(XBOX_RJ))
+	if (!m_xbox->GetRawButton(XBOX_RJ) && buttonLastPressed[XBOX_RJ])
 	{
-		m_ingestionVictor1->Set(1);
-		m_ingestionVictor2->Set(1);
-	} else {
-		m_ingestionVictor1->Set(0);
-		m_ingestionVictor2->Set(0);
+		if(m_ingestionVictor1->Get() == 0)
+		{
+			m_ingestionVictor1->Set(1);
+			m_ingestionVictor2->Set(1);
+		} else {
+			m_ingestionVictor1->Set(0);
+			m_ingestionVictor2->Set(1);
+		}
 	}
 
 	// Tank drive VS Arcade drive (not decided yet)
@@ -422,6 +425,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		buttonLastPressed[XBOX_LJ] = true;
 	} else {
 		buttonLastPressed[XBOX_LJ] = false;
+	}
+	if (m_xbox->GetRawButton(XBOX_RJ))
+	{
+		buttonLastPressed[XBOX_RJ] = true;
+	} else {
+		buttonLastPressed[XBOX_RJ] = false;
 	}
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
