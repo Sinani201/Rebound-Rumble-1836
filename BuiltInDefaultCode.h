@@ -28,7 +28,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// This checks if the button was pressed in the last loop
 	// Allows us to see when a button has been released rather than
 	// pressed
-	bool buttonLastPressed[10];
+	bool buttonLastPressed[11];
 	
 	//MILKEN CODE
 	// Declare variables for the arm motors being used
@@ -41,19 +41,16 @@ class BuiltinDefaultCode : public IterativeRobot {
 	
 	// Defines the variable used to point to the Compressor object used to open and close
 	// the claw.
-	Compressor *claw_compressor;
+	Compressor *m_compressor;
 	
 	//MILKEN CODE
-	// Pointers to the two solenoid objects for the claw and the two for the minibot
-	// delpoyment system
-	Solenoid *m_Solenoid1;
-	Solenoid *m_Solenoid2;
-	Solenoid *m_Solenoid3;
-	Solenoid *m_Solenoid4;
+	// Pointers to the two solenoid objects for the drive gears and the two for the bridge mechanism
+	Solenoid *m_driveGear1;
+	Solenoid *m_driveGear2;
+	Solenoid *m_bridgeMechanism1;
+	Solenoid *m_bridgeMechanism2;
 	
 	int m_selectedGear;
-	//Solenoid *m_MiniSolenoid1;
-	//Solenoid *m_MiniSolenoid2;
 	// Booleans (which are either true or false
 	// These track if the Solenoids should on (true) or off (false)
 	bool rightSolenoidOn;

@@ -28,30 +28,9 @@
 #define XBOX_RSY	5 // right stick y
 #define XBOX_DPAD	6 // buggy
 
-// These define which PWM controls are for the two arm motors
-// It may not matter which is left and which is right
-//#define RIGHT_ARM_MOTOR 6
-//#define LEFT_ARM_MOTOR 5
-// this comment makes no sense like this code.
-// definitions of the motors for the MiniBot deployment system
-// These define which PWM controls are used for each motor.
-//#define MINIBOT_MOTOR1 7
-// Now the deployment system uses only one motor.
-// #define MINIBOT_MOTOR2 8
-// Set the speeds of each deployment motor
-// Single define means same speed in each direction
-//#define MINIBOT_MOTOR1_SPEED 0.50
-//#define MINIBOT_MOTOR2_SPEED 0.50
-
 // definitions of the buttons for the MiniBot Motor Controls
 //#define MINIBOT_MOTOR1_BUT1	11
 //#define MINIBOT_MOTOR1_BUT2 10
-
-// Now we only use one motor, but we do use buttons 7 and 6 for the solenoid
-// #define MINIBOT_MOTOR2_BUT1 7
-// #define MINIBOT_MOTOR2_BUT2 6
-#define MINIBOT_SOLENOID1_BUT 7
-#define MINIBOT_SOLENOID2_BUT 6
 
 // define the minimum Arm Motor Speed
 // Put in so the Arm doesn't jitter around
@@ -161,29 +140,12 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	//m_armStick = new Joystick(3);
 	m_xbox = new Joystick(1);
 	
-	//MILKEN CODE
-	//These are the controls for the motors that run the arm.
-	//arm_leftmotor = new Victor(LEFT_ARM_MOTOR);
-	//arm_rightmotor = new Victor(RIGHT_ARM_MOTOR);
-	
-	// Here we set up the two motors that control the minibot deployment system.
-	//minibot_motor1 = new Victor(MINIBOT_MOTOR1);
-	// NOW THERE IS NO SECOND MOTOR
-	// minibot_motor2 = new Victor(MINIBOT_MOTOR2);
-	
-	// Make sure all motors are turned off. (Set to zero.) 
-	//arm_leftmotor->Set(0);
-	//arm_rightmotor->Set(0);
-	//minibot_motor1->Set(0);
-	// No second minibot Motor
-	// minibot_motor2->Set(0);
-	
 	// Set up the compressor controls and the two solenoids
-	claw_compressor = new Compressor(PRESSURE_SWITCH_CHANNEL,RELAY_SWITCH_CHANNEL);
-	m_Solenoid1 = new Solenoid(1);
-	m_Solenoid2 = new Solenoid(2);
-	m_Solenoid3 = new Solenoid(3);
-	m_Solenoid4 = new Solenoid(4);
+	m_compressor = new Compressor(PRESSURE_SWITCH_CHANNEL,RELAY_SWITCH_CHANNEL);
+	m_driveGear1 = new Solenoid(1);
+	m_driveGear2 = new Solenoid(2);
+	m_bridgeMechanism1 = new Solenoid(3);
+	m_bridgeMechanism2 = new Solenoid(4);
 	m_selectedGear = DEFAULT_GEAR;
 	
 	// achannel and bchannel are set to 1 and 2, but those probably
@@ -192,44 +154,29 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	
 	if(DEFAULT_GEAR == 1)
 	{
-		m_Solenoid1->Set(true);
-		m_Solenoid2->Set(false);
+		m_driveGear1->Set(true);
+		m_driveGear2->Set(false);
 	} else {
-		m_Solenoid1->Set(false);
-		m_Solenoid2->Set(true);
+		m_driveGear1->Set(false);
+		m_driveGear2->Set(true);
 	}
 	
-	m_Solenoid3->Set(true);
-	m_Solenoid4->Set(false);
-	
-	// Set up the two solenoids for the minibot deployment system
-	//m_MiniSolenoid1 = new Solenoid(MINI_SOLENOID1);
-	//m_MiniSolenoid2 = new Solenoid(MINI_SOLENOID2);
+	m_bridgeMechanism1->Set(true);
+	m_bridgeMechanism2->Set(false);
 	
 	// Set up the LCD (for getting output from the robot)
 	m_lcd = DriverStationLCD::GetInstance();
 	
 	// Turn off all solenoids
-	//m_Solenoid1->Set(0);
-	//m_Solenoid2->Set(0);
-	//m_MiniSolenoid1->Set(0);
-	//m_MiniSolenoid2->Set(0);
+	//m_driveGear1->Set(0);
+	//m_driveGear2->Set(0);
+	//m_MinidriveGear1->Set(0);
+	//m_MinidriveGear2->Set(0);
 	
 	
 	
 	// set up the camera task
 	m_vision = new Task("Vision",(FUNCPTR)StartTask);
-	
-	// Set the four Solenoid variables to their initial values
-	// Set the solenoid that should be on initially here.
-	// CHANGE THE CODE HERE BASED ON WHICH SOLENOID CLOSES THE CLAW
-	// ONE OF THESE NEEDS TO BE SET TO TRUE
-	// I AM NOT SURE WHICH ONE
-	// We also need to figure out the initial conditions for the minibot solenoids
-	//leftSolenoidOn = false;
-	//rightSolenoidOn = true;
-	//MiniSolenoid1On = true;
-	//MiniSolenoid2On = false;
 	
 	// Initialize counters to record the number of loops completed in autonomous and teleop modes
 	m_autoPeriodicLoops = 0;
@@ -246,13 +193,13 @@ void BuiltinDefaultCode::RobotInit(void) {
 	// robot would be put here.
 
 	// TURN ON THE COMPRESSOR
-	claw_compressor->Start();
+	m_compressor->Start();
 
 	// Set the solenoids to their initial conditions
-	//m_Solenoid1->Set(rightSolenoidOn);
-	//m_Solenoid2->Set(leftSolenoidOn);
-	//m_MiniSolenoid1->Set(MiniSolenoid1On);
-	//m_MiniSolenoid2->Set(MiniSolenoid2On);
+	//m_driveGear1->Set(rightSolenoidOn);
+	//m_driveGear2->Set(leftSolenoidOn);
+	//m_MinidriveGear1->Set(MinidriveGear1On);
+	//m_MinidriveGear2->Set(MinidriveGear2On);
 	
 	printf("RobotInit() completed.\n");
 	//camera = &AxisCamera::GetInstance();
@@ -504,41 +451,9 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 }
 
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
-	/*
 	// count number of times this routine has been called.
 	// ++ causes a variable to be incremented (1 added to it.) 
 	m_autoPeriodicLoops++;
-
-	// figure out how many seconds have gone by in autonomous mode.
-	m_auto_num_secs = (m_autoPeriodicLoops/GetLoopsPerSec());
-			
-	if (m_autoPeriodicLoops == 1) {
-		// When on the first periodic loop in autonomous mode
-		// start driving at AUTO_MODE_DRIVE_SPEED
-		m_robotDrive->Drive(AUTO_MODE_DRIVE_SPEED, 0.0);
-		
-		// start at the arm moving
-		arm_leftmotor->Set(AUTO_MODE_ARM_SPEED);
-		arm_rightmotor->Set(AUTO_MODE_ARM_SPEED);
-		}
-	
-		// If enough time has passed (based on AUTO_MODE_ARM_TIME)
-		// stop the arm moving
-		if (m_auto_num_secs >= AUTO_MODE_ARM_TIME) {
-			arm_leftmotor->Set(0);
-			arm_rightmotor->Set(0);
-			}
-		
-		// If enough time has passed (based on AUTO_MODE_DRIVE_TIME)
-		// stop the robot moving
-		if (m_auto_num_secs >= AUTO_MODE_DRIVE_TIME) {
-			m_robotDrive->Drive(0.0, 0.0);			// stop robot
-			}
-	 */
-
-	//int numParticles = reports->size();
-	
-	
 	
 	if(m_xbox->GetRawButton(XBOX_LB))
 	{
@@ -595,7 +510,6 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 		m_robotDrive->MecanumDrive_Cartesian(0,0,0,0);
 	}
 	*/
-	m_autoPeriodicLoops++;
 	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line1,"ALoops:%d", m_autoPeriodicLoops);
 	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"VLoops:%d", m_visionPeriodicLoops);
 	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"numParticles:%d", numParticles);
@@ -632,107 +546,7 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// increment the number of teleop periodic loops completed
 	m_telePeriodicLoops++;
-			/*
-	 * No longer needed since periodic loops are now synchronized with incoming packets.
-	if (m_ds->GetPacketNumber() != m_priorPacketNumber) {
 	
-		 
-		 * Code placed in here will be called only when a new packet of information
-		 * has been received by the Driver Station.  Any code which needs new information
-		 * from the DS should go in here
-		 
-		 
-		//m_dsPacketsReceivedInCurrentSecond++;					// increment DS packets received
-					
-		// put Driver Station-dependent code here
-
-		// Get the Y of the Arm joystick
-		// This will be the speed and direction that the arm will move.
-		//m_ArmJoyStickY = m_armStick->GetY();
-		
-		
-		// Make sure arm doesn't jitter
-		// The absolute value of the Y variable needs to be greater than the minimum.
-		// If it is then pass it to the two motors.
-		if (fabs(m_ArmJoyStickY)< MIN_ARM_MOVE) {
-			arm_leftmotor->Set(0);
-			arm_rightmotor->Set(0);
-		} else {
-			arm_leftmotor->Set(m_ArmJoyStickY);
-			arm_rightmotor->Set(m_ArmJoyStickY);
-		}
-		
-		//commented out drive code to test alternate joystick usage
-		//USE ONLY ONE DRIVE METHOD
-		// m_robotDrive->ArcadeDrive(m_rightStick);
-		//m_robotDrive->TankDrive(m_leftStick,m_rightStick);
-		
-		//normal code to drive Mecanum wheels
-		//See #defines at top for Maximum Angle
-		//m_robotDrive->MecanumDrive_Cartesian(m_rightStick->GetX(),m_rightStick->GetY(),m_leftStick->GetY(),0);
-		
-		
-		//Set Solenoids for Compressor Based on armStick buttons
-		//Top Button Wins! (Since it is checked second.)
-		if(m_armStick->GetTrigger()) 
-			{
-			rightSolenoidOn = true;
-			leftSolenoidOn = false;
-			}
-		if(m_armStick->GetTop()) 
-			{
-			leftSolenoidOn = true;
-			rightSolenoidOn = false;
-			}
-		
-		
-		//set the solenoids based on our variables			
-		m_Solenoid1->Set(rightSolenoidOn);
-		m_Solenoid2->Set(leftSolenoidOn);
-		
-		
-		//Minibot Deployment System
-		
-		// Check Motor 1 Button 1 if on go at the predefined speed
-		if(m_armStick->GetRawButton(MINIBOT_MOTOR1_BUT1))
-			minibot_motor1->Set(MINIBOT_MOTOR1_SPEED);
-		// Otherwise check Motor 1 Button 2 if on go at the predefined speed
-		// in the other direction.
-		else if (m_armStick->GetRawButton(MINIBOT_MOTOR1_BUT2))
-			minibot_motor1->Set(0-MINIBOT_MOTOR1_SPEED);
-		// Otherwise turn off motor 1
-		else minibot_motor1->Set(0);
-		
-		// Second Minibot Motor currently not used.
-		// Check Motor 2 Button 1 if on go at the predefined speed
-		 if(m_armStick->GetRawButton(MINIBOT_MOTOR2_BUT1))
-			minibot_motor2->Set(MINIBOT_MOTOR2_SPEED);
-		// Otherwise check Motor 2 Button 2 if on go at the predefined speed
-		// in the other direction.
-		else if (m_armStick->GetRawButton(MINIBOT_MOTOR2_BUT2))
-			minibot_motor2->Set(0-MINIBOT_MOTOR2_SPEED);
-		// Otherwise turn off motor 2
-		else minibot_motor2->Set(0);
-		
-		
-		// Set the solenoids for the minibot delpoyment system based on the buttons
-		// for that system
-		// The second button wins.
-		if(m_armStick->GetRawButton(MINIBOT_SOLENOID1_BUT))
-		{
-			MiniSolenoid1On = true;
-			MiniSolenoid2On = false;
-			
-		}
-		if (m_armStick->GetRawButton(MINIBOT_SOLENOID2_BUT))
-		{
-			MiniSolenoid1On = false;
-			MiniSolenoid2On = true;
-			
-		}
-		// Set the solenoids to the current value of their control variables.
-		*/
-		
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
 	// if right bumper was released, and solenoid 1 is on, turn on solenoid2
@@ -752,13 +566,13 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Control the bridge mechanism with solenoids
 	if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
 	{
-		if(m_Solenoid3->Get())
+		if(m_bridgeMechanism1->Get())
 		{
-			m_Solenoid3->Set(false);
-			m_Solenoid4->Set(true);
+			m_bridgeMechanism1->Set(false);
+			m_bridgeMechanism2->Set(true);
 		} else {
-			m_Solenoid3->Set(true);
-			m_Solenoid4->Set(false);
+			m_bridgeMechanism1->Set(true);
+			m_bridgeMechanism2->Set(false);
 		}
 	}
 	
@@ -768,31 +582,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	m_Solenoid1->Set(solenoid1On);
-	m_Solenoid2->Set(solenoid2On);
-	
-	/*
-	// Make sure the arm doesn't jitter
-	if (fabs(m_ArmStickY)< MIN_ARM_MOVE) {
-		arm_leftmotor->Set(0);
-		arm_rightmotor->Set(0);
-	} else {
-		arm_leftmotor->Set(m_ArmStickY);
-		arm_rightmotor->Set(m_ArmStickY);
-	}
-	*/
-	
-	//m_robotDrive->MecanumDrive_Cartesian(m_RightStickX,m_RightStickY,m_LeftStickY,0);
-	
-	/*
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line1,"TLoops:%d", m_telePeriodicLoops);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"XboxButton:%c",button);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"LeftStick:%fx%f",m_LeftStickX,m_LeftStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"RightStick:%fx%f",m_RightStickX,m_RightStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"Trig:%f",m_ArmStickY);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d",CODE_REV);
-	m_lcd->UpdateLCD();
-	*/
+	m_driveGear1->Set(solenoid1On);
+	m_driveGear2->Set(solenoid2On);
 	
 	// Controls for vision target criteria
 	// Not fully implemented
