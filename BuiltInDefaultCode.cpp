@@ -733,69 +733,36 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		// Set the solenoids to the current value of their control variables.
 		*/
 		
-		if(m_xbox->GetRawButton(XBOX_A))
-		{
-			m_lastButton='a';
-		}
-		if(m_xbox->GetRawButton(XBOX_B))
-		{
-			m_lastButton = 'b';
-		}
-		
-		// Solenoid controls
-		// if right bumper was released, and solenoid 1 is on, turn on solenoid2
-		if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
-		{
-			solenoid1On = false;
-			solenoid2On = true;
-			m_selectedGear = 2;
-		}
-		// same stuff here, with solenoid 1
-		else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
-			solenoid2On = false;
-			solenoid1On = true;
-			m_selectedGear = 1;
-		}
+	// Drive gear, with solenoids
+	// One of these is the slow gear, one is the fast gear
+	// if right bumper was released, and solenoid 1 is on, turn on solenoid2
+	if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
+	{
+		solenoid1On = false;
+		solenoid2On = true;
+		m_selectedGear = 2;
+	}
+	// same stuff here, with solenoid 1
+	else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
+		solenoid2On = false;
+		solenoid1On = true;
+		m_selectedGear = 1;
+	}
 
-		// Control the bridge mechanism with solenoids
-		if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
+	// Control the bridge mechanism with solenoids
+	if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
+	{
+		if(m_Solenoid3->Get())
 		{
-			if(m_Solenoid3->Get())
-			{
-				m_Solenoid3->Set(false);
-				m_Solenoid4->Set(true);
-			} else {
-				m_Solenoid3->Set(true);
-				m_Solenoid4->Set(false);
-			}
+			m_Solenoid3->Set(false);
+			m_Solenoid4->Set(true);
+		} else {
+			m_Solenoid3->Set(true);
+			m_Solenoid4->Set(false);
 		}
-
-		if (m_xbox->GetRawButton(XBOX_X))
-		{
-			m_lastButton='x';
-		} else if (m_xbox->GetRawButton(XBOX_Y))
-		{
-			m_lastButton='y';
-		} else if (m_xbox->GetRawButton(XBOX_LB))
-		{
-			m_lastButton='l';
-		} else if (m_xbox->GetRawButton(XBOX_RB))
-		{
-			m_lastButton='r';
-		} else if (m_xbox->GetRawButton(XBOX_BACK))
-		{
-			m_lastButton='<';
-		} else if (m_xbox->GetRawButton(XBOX_START))
-		{
-			m_lastButton='>';
-		} else if (m_xbox->GetRawButton(XBOX_LJ))
-		{
-			m_lastButton='L';
-		} else if (m_xbox->GetRawButton(XBOX_RJ))
-		{
-			m_lastButton='R';
-		}
+	}
 	
+	// Set the joystick variables
 	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
 	m_LeftStickY	= m_xbox->GetRawAxis(XBOX_LSY);
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
@@ -827,6 +794,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_lcd->UpdateLCD();
 	*/
 	
+	// Controls for vision target criteria
+	// Not fully implemented
 	if(m_xbox->GetRawButton(XBOX_LB))
 	{
 		if(selectedParticle != 0)
@@ -874,30 +843,23 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	float leftspeed;
 	float rightspeed;
 	
-	if(m_xbox->GetRawButton(XBOX_X))
+	spinspeed = 0;
+	// prevent jitter
+	if(fabs(m_LeftStickY) >= 0.001)
 	{
-		spinspeed = selReport.center_mass_x_normalized/3;
-		//m_robotDrive->MecanumDrive_Cartesian(0,0,spinspeed,0);
-		//m_robotDrive->TankDrive(spinspeed,-spinspeed);
-		m_robotDrive->TankDrive(1,1);
+		leftspeed = m_LeftStickY;
 	} else {
-		spinspeed = 0;
-		// prevent jitter
-		if(fabs(m_LeftStickY) >= 0.001)
-		{
-			leftspeed = m_LeftStickY;
-		} else {
-			leftspeed = 0;
-		}
-		if(fabs(m_RightStickY) >= 0.001)
-		{
-			rightspeed = m_RightStickY;
-		} else {
-			rightspeed = 0;
-		}
+		leftspeed = 0;
+	}
+	if(fabs(m_RightStickY) >= 0.001)
+	{
+		rightspeed = m_RightStickY;
+	} else {
+		rightspeed = 0;
 	}
 
-	// Logarithmic function allows more variance for slower speeds
+	// This adds for more variance in slower speed
+	// makes sort of a hyperbolic graph when using the triggers for control
 	if(m_Trig > 0.0001)
 	{
 		leftspeed   += pow(1.8,m_Trig)-0.8;
@@ -907,7 +869,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		leftspeed	-= pow(1.8,fabs(m_Trig))-0.8;
 		rightspeed	-= pow(1.8,fabs(m_Trig))-0.8;
 	}
-
+	
 	if(leftspeed > 1)
 	{
 		leftspeed = 1;
@@ -933,11 +895,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		m_ingestionVictor2->Set(0);
 	}
 
-
+	// Tank drive VS Arcade drive (not decided yet)
 	//m_robotDrive->TankDrive(leftspeed,rightspeed);
-	m_robotDrive->ArcadeDrive(m_xbox,true);
+	m_robotDrive->ArcadeDrive(m_xbox,true); // not sure which joystick this is
 
 	// set buttonLastPressed
+	// This allows us to see if a button has been released rather than pressed
 	if (m_xbox->GetRawButton(XBOX_RB))
 	{
 		buttonLastPressed[XBOX_RB] = true;
@@ -957,7 +920,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		buttonLastPressed[XBOX_LJ] = false;
 	}
 
-	// Encoder stuff!
+	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	int encoderRaw = m_Encoder->GetRaw();
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"E:%d",encoderRaw);
