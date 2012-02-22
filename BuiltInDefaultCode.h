@@ -14,14 +14,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	
 	// Declare a variable to use to access the driver station object
 	DriverStation *m_ds;						// driver station object
-	UINT32 m_priorPacketNumber;					// keep track of the most recent packet number from the DS
-	UINT8 m_dsPacketsReceivedInCurrentSecond;	// keep track of the ds packets received in the current second
-	/*
-	// Declare variables for the two joysticks being used
-	Joystick *m_rightStick;			// joystick 1 (arcade stick or right tank stick)
-	Joystick *m_leftStick;			// joystick 2 (tank left stick)
-	Joystick *m_armStick;			// joystick 3 (Arm Control stick)
-	*/
+
 	// The xbox controller (this is probably what we will end up using)
 	Joystick *m_xbox;
 	
@@ -30,17 +23,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// pressed
 	bool buttonLastPressed[11];
 	
-	//MILKEN CODE
-	// Declare variables for the arm motors being used
-	//Victor *arm_leftmotor;	
-	//Victor *arm_rightmotor;
-	// These define the two motors that control the minibot deployment system.
-	//Victor *minibot_motor1;
-	// Only one minibot motor
-	// Victor *minibot_motor2;
-	
-	// Defines the variable used to point to the Compressor object used to open and close
-	// the claw.
+	// Defines the variable used to point to the Compressor object
 	Compressor *m_compressor;
 	
 	//MILKEN CODE
@@ -50,13 +33,8 @@ class BuiltinDefaultCode : public IterativeRobot {
 	Solenoid *m_bridgeMechanism1;
 	Solenoid *m_bridgeMechanism2;
 	
+	// Tells us which gear is selected (1 or 2)
 	int m_selectedGear;
-	// Booleans (which are either true or false
-	// These track if the Solenoids should on (true) or off (false)
-	bool rightSolenoidOn;
-	bool leftSolenoidOn;
-	bool solenoid1On;
-	bool solenoid2On;
 	
 	// The encoder
 	Encoder *m_Encoder;
@@ -64,9 +42,6 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// Multithreading stuff
 	Task * m_vision;
 	bool m_autoModeBegun;
-	
-	// variable used to hold the value of the arm movement speed.
-	//float m_ArmJoyStickY;
 	
 	// Xbox controller sticks
 	float m_LeftStickX;
@@ -80,10 +55,6 @@ class BuiltinDefaultCode : public IterativeRobot {
 	UINT32 m_visionPeriodicLoops;
 	UINT32 m_disabledPeriodicLoops;
 	UINT32 m_telePeriodicLoops;
-	char m_lastButton;
-	
-	// variable to count number of seconds elasped in autonomous mode 
-	double m_auto_num_secs;
 	
 	// Camera stuff
 	AxisCamera *camera;
@@ -95,26 +66,6 @@ class BuiltinDefaultCode : public IterativeRobot {
 	int selParticleNum[80];
 	int sat;
 	int lum;
-	
-	// TEMP VICTORS
-	//Victor *topleft;
-	//Victor *rearleft;
-	
-	// All victors
-	//Victor *one;
-	//Victor *two;
-	//Victor *three;
-	Victor *four;
-	//Victor *five;
-	Victor *six;
-	Victor *nine;
-	Victor *ten;
-	
-	/*
-	Victor *topright;
-	Victor *rearright;
-	*/
-	//vector<ParticleAnalysisReport>* reports;
 	
 	// experimental driver station LCD
 	DriverStationLCD* m_lcd;

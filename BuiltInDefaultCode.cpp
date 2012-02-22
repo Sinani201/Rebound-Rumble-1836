@@ -28,63 +28,12 @@
 #define XBOX_RSY	5 // right stick y
 #define XBOX_DPAD	6 // buggy
 
-// definitions of the buttons for the MiniBot Motor Controls
-//#define MINIBOT_MOTOR1_BUT1	11
-//#define MINIBOT_MOTOR1_BUT2 10
-
-// define the minimum Arm Motor Speed
-// Put in so the Arm doesn't jitter around
-#define MIN_ARM_MOVE 0.0001 
-
-// DRIVE CONTROL DEFINITIONS
-// This defines the maximum turn angle that Joystick 1 can create. (Right stick.)
-// This angle is acheived when the stick is moved completely to the left or right. (X-axis.)
-#define MAX_TURN_DEGREES 30
-
-// PNEUMATICS DEFINITIONS
-// These define four solenoid connections.
-// Not really RIGHT and LEFT.
-// One opens and the other closes.
-// Controlled (right now) by the top and trigger buttons on the arm joystick.
-// The minibot delpoyment system uses the two solenoids now too!
-#define RIGHT_SOLENOID 1
-#define LEFT_SOLENOID 2
-#define MINI_SOLENOID1 3
-#define MINI_SOLENOID2 4
-
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
 // The Relay Switch is a relay switch channel
 #define PRESSURE_SWITCH_CHANNEL 4
 #define RELAY_SWITCH_CHANNEL 3
 #define DEFAULT_GEAR 1
-
-// Define the various constants that we will use during autonomous mode
-#define AUTO_MODE_ARM_TIME 1  // # of seconds arm will move
-#define AUTO_MODE_ARM_SPEED 0.10 // speed arm will move
-#define AUTO_MODE_DRIVE_TIME 500 // # seconds robot will move
-#define AUTO_MODE_DRIVE_SPEED 0.30 // speed (forward/reverse) that robot will move
-#define AUTO_MODE_SPIN_TIME 500
-
-
-/**
- * 
- * This code assumes the following connections:
- * - Driver Station:
- *   - USB 1 - The "right" joystick.  Used for either "arcade drive" or "right" stick for tank drive
- *				In Mecanum drive this controls speed and turn angle.
- *   - USB 2 - The "left" joystick.  Used as the "left" stick for tank drive. Circles in Mecanum mode.
- * 	 - USB 3 - The "arm" joystick. Used to move the arm up and down.
- * 
- * - Robot:
- *   - Digital Sidecar 1:
- *     - PWM 1/3 - Connected to "left" drive motor(s)
- *     - PWM 2/4 - Connected to "right" drive motor(s)
- * 		PWM 1 Front Left Drive Motor
- * 		PWM 3 Rear Left Drive Motor
- * 		PWM 2 Front Right Drive Motor
- * 		PWM 4 Rear Right Drive Motor
- */
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -110,34 +59,16 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_ingestionVictor1= new Victor(3);
 	m_ingestionVictor2= new Victor(5);
 	
-	// Create a robot using standard right/left robot drive on PWMS 1, 2, 3, and #4
+	// Create a robot using standard right/left robot drive on PWMS 7, 8, 9, and 10
+	// This uses victors which are declared above
 	m_robotDrive = new RobotDrive(m_frontLeftVictor,
 								  m_rearLeftVictor,
 								  m_frontRightVictor,
 								  m_rearRightVictor);
 	
-	// test for all Victors
-	//three = new Victor(3);
-	four = new Victor(4);
-	//five = new Victor(5);
-	six = new Victor(6);
-	nine = new Victor(1);
-	ten = new Victor(2);
-
-	
-	//topleft = new Victor(9);
-	//topright = new Victor(10);
-	//rearleft = new Victor(10);
-	//rearright = new Victor(8);
 	// Acquire the Driver Station object
 	m_ds = DriverStation::GetInstance();
-	m_priorPacketNumber = 0;
-	m_dsPacketsReceivedInCurrentSecond = 0;
 	
-	// Define joysticks being used at USB ports #1, #2, and #3 on the Drivers Station
-	//m_rightStick = new Joystick(1);
-	//m_leftStick = new Joystick(2);
-	//m_armStick = new Joystick(3);
 	m_xbox = new Joystick(1);
 	
 	// Set up the compressor controls and the two solenoids
@@ -167,14 +98,6 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	// Set up the LCD (for getting output from the robot)
 	m_lcd = DriverStationLCD::GetInstance();
 	
-	// Turn off all solenoids
-	//m_driveGear1->Set(0);
-	//m_driveGear2->Set(0);
-	//m_MinidriveGear1->Set(0);
-	//m_MinidriveGear2->Set(0);
-	
-	
-	
 	// set up the camera task
 	m_vision = new Task("Vision",(FUNCPTR)StartTask);
 	
@@ -195,19 +118,7 @@ void BuiltinDefaultCode::RobotInit(void) {
 	// TURN ON THE COMPRESSOR
 	m_compressor->Start();
 
-	// Set the solenoids to their initial conditions
-	//m_driveGear1->Set(rightSolenoidOn);
-	//m_driveGear2->Set(leftSolenoidOn);
-	//m_MinidriveGear1->Set(MinidriveGear1On);
-	//m_MinidriveGear2->Set(MinidriveGear2On);
-	
 	printf("RobotInit() completed.\n");
-	//camera = &AxisCamera::GetInstance();
-	//camera->WriteResolution(*camera.kResolution_320x240);
-	//camera->WriteBrightness(50);
-	//camera->WriteCompression(0);
-	
-	
 }
 
 void BuiltinDefaultCode::DisabledInit(void) {
@@ -218,11 +129,16 @@ void BuiltinDefaultCode::DisabledInit(void) {
 }
 
 void BuiltinDefaultCode::AutonomousInit(void) {
-	m_autoPeriodicLoops = 0;			// Reset the loop counter for autonomous mode
+	// Reset various counters
+	m_autoPeriodicLoops = 0;
 	selectedParticle = 0;
 	bigParticles = 0;
+
+	// Ideal numbers for saturation and luminosity
+	// these represent the white vision targets
 	sat = 0;
 	lum = 224;
+
 	if(!m_autoModeBegun)
 	{
 		m_autoModeBegun = true;
@@ -232,7 +148,6 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	
 void BuiltinDefaultCode::TeleopInit(void) {
 	m_telePeriodicLoops = 0;			// Reset the loop counter for teleop mode
-	m_dsPacketsReceivedInCurrentSecond = 0;	// Reset the number of dsPackets in current second
 	/*
 	if(!m_autoModeBegun)
 	{
@@ -313,121 +228,6 @@ void BuiltinDefaultCode::RunAutoThread()
 		m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"%d/%d",selectedParticle+1,bigParticles);
 		m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"Sat:%d Lum:%d",sat,lum);
 		m_lcd->UpdateLCD();
-				
-		//binImage->Write("testimage4444.png");
-		
-		//BinaryImage* binImage = hoop->ThresholdHSL(0,9,0,5,250,255);
-		
-		//int numParticles = binImage->GetNumberParticles();
-		//int found = 0;
-		
-		// We don't need these images anymore, so we can get rid of them.
-		//delete camerain;
-		/*
-		int x=0,y=0,w=0,h=0;
-		
-		double largestParticle = 0;
-		int largestParticleNum = -1;
-		
-		int bigParticles = 0;
-		int numParticles;
-		*/
-		/*
-		// Loop through each particle and see if it should be tracked
-		//for(int i = 0; i<numParticles; i++)
-		//{
-		int i = 0;
-		binImage->GetParticleAnalysisReport(i,&report);
-		
-		//if(largestParticle < report.particleToImagePercent);
-		if(i == 0)
-		{
-			largestParticle = report.particleToImagePercent;
-			largestParticleNum = i;
-		}
-		// Disregard small objects
-		//if(report.particleToImagePercent > 4.5)
-		//{
-			// Get coordinates of the bounding rect
-			x = report.boundingRect.left;
-			y = report.boundingRect.top;
-			w = report.boundingRect.width;
-			h = report.boundingRect.height;
-		//}
-		//}
-		*/
-		//numParticles = binImage->GetNumberParticles();
-		
-		//double p1, p2, p3;
-		/*
-		for(int r=0; r<numParticles; r++)
-		{
-			binImage->GetParticleAnalysisReport(r,&report);
-			if(report.particleArea > 7.0)
-			{
-				if(bigParticles==0)
-				{
-					p1=report.particleArea;
-				} else if (bigParticles==1)
-				{
-					p2=report.particleArea;
-				} else if (bigParticles==2)
-				{
-					p3=report.particleArea;
-				}
-				bigParticles++;
-			}
-		}
-		*/
-		/*
-		binImage->GetParticleAnalysisReport(11,&report);
-		// This holds the particle analysis reports
-		largestParticle = report.particleArea;
-		x = report.boundingRect.left;
-		y = report.boundingRect.top;
-		w = report.boundingRect.width;
-		h = report.boundingRect.height;
-		*/
-		
-		/*
-		// Convert to an imaq image for more advanced operations
-		Image* imaqBinImage = frcCreateImage(IMAQ_IMAGE_U8);
-		imaqBinImage = binImage->GetImaqImage();
-		//ThresholdHSL(0,10,0,10,250,255);
-		*/
-		
-		/*
-		Range hue,sat,lum;
-		hue.minValue = 0;
-		hue.maxValue = 10;
-		sat.minValue = 0;
-		sat.maxValue = 10;
-		lum.minValue = 250;
-		lum.maxValue = 255;
-		*/
-		//imaqBinImage = camerain->GetImaqImage();
-		//frcWriteImage(imaqBinImage,"theimage2.png");
-
-		//frcColorThreshold(imaqBinImage,imaqBinImage,IMAQ_HSL,&hue,&sat,&lum);
-		//frcWriteImage(imaqBinImage,"theimage3.png");
-		
-		//imaqConvexHull(imaqBinImage,imaqBinImage,4);
-		
-		//int numParticles = 0;
-		/*
-		if(frcCountParticles(imaqBinImage,&numParticles) == 0)
-		{
-			numParticles = -1;
-		}
-		*/
-		
-		//frcParticleAnalysis(imaqBinImage, int particleNumber, ParticleAnalysisReport* par);
-		//delete binImage;
-		
-		//m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Particles: %d",numParticles);
-		//m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"x,y,w,h: %d,%d,%d,%d",x,y,w,h);
-		//m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"LPS: %f (%d)",largestParticle,&numParticles);
-		//m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"BP:%d (%f,%f,%f)",bigParticles,p1,p2,p3);
 	}
 }
 
@@ -452,94 +252,10 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
-	// ++ causes a variable to be incremented (1 added to it.) 
 	m_autoPeriodicLoops++;
 	
-	if(m_xbox->GetRawButton(XBOX_LB))
-	{
-		if(selectedParticle != 0)
-		{
-			selectedParticle--;
-		}
-	}
-	else if(m_xbox->GetRawButton(XBOX_RB))
-	{
-		if(selectedParticle < bigParticles)
-		{
-			selectedParticle++;
-		}
-	}
-	
-	if(m_xbox->GetRawButton(XBOX_Y))
-	{
-		if(lum < 219)
-		{
-			lum++;
-		}
-	}
-	else if(m_xbox->GetRawButton(XBOX_A))
-	{
-		if(lum > 0)
-		{
-			lum--;
-		}
-	}
-	if(m_xbox->GetRawButton(XBOX_START))
-	{
-		if(sat < 245)
-		{
-			sat++;
-		}
-	}
-	else if(m_xbox->GetRawButton(XBOX_BACK))
-	{
-		if(sat > 0)
-		{
-			sat--;
-		}
-	}
-	
-	/*
-	float spinspeed;
-	if(m_xbox->GetRawButton(XBOX_X))
-	{
-		spinspeed = selReport.center_mass_x_normalized/3;
-		m_robotDrive->MecanumDrive_Cartesian(0,0,spinspeed,0);
-	} else {
-		spinspeed = 0;
-		m_robotDrive->MecanumDrive_Cartesian(0,0,0,0);
-	}
-	*/
-	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line1,"ALoops:%d", m_autoPeriodicLoops);
-	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"VLoops:%d", m_visionPeriodicLoops);
-	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"numParticles:%d", numParticles);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d",CODE_REV,m_autoPeriodicLoops,m_visionPeriodicLoops);
 	m_lcd->UpdateLCD();
-
-	//double secondsPassed = m_autoPeriodicLoops / GetLoopsPerSec();
-	// First move forward for a set amount of time
-	
-	// tesing printf
-	//m_lcd->PrintfLine(DriverStationLCD::kUser_Linel, "Testing output", )
-	
-	/*
-	if(m_autoPeriodicLoops < AUTO_MODE_DRIVE_TIME)
-	{
-		// This moves the robot forward at 0.1 speed (use tank drive instead of mecanum)
-		m_robotDrive->MecanumDrive_Cartesian(0,AUTO_MODE_DRIVE_SPEED,0,0);
-		//m_robotDrive->TankDrive(AUTO_MODE_DRIVE_SPEED,AUTO_MODE_DRIVE_SPEED);
-	}
-	else if(m_autoPeriodicLoops < (AUTO_MODE_SPIN_TIME + AUTO_MODE_DRIVE_TIME))
-	{
-		// This (should) spin the robot in place.
-		m_robotDrive->MecanumDrive_Cartesian(0,0,AUTO_MODE_DRIVE_SPEED,0);
-		//m_robotDrive->TankDrive(AUTO_MODE_DRIVE_SPEED,-(AUTO_MODE_DRIVE_SPEED));
-	}
-	else
-	{
-		m_robotDrive->MecanumDrive_Cartesian(0,0,0,0);
-	}
-	*/
 }
 
 
@@ -550,16 +266,17 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
 	// if right bumper was released, and solenoid 1 is on, turn on solenoid2
-	if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && solenoid1On)
+	if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && m_driveGear1->Get())
 	{
-		solenoid1On = false;
-		solenoid2On = true;
+		m_driveGear1->Set(false);
+		m_driveGear2->Set(true);
 		m_selectedGear = 2;
 	}
 	// same stuff here, with solenoid 1
-	else if (m_xbox->GetRawButton(XBOX_LB) && solenoid2On) {
-		solenoid2On = false;
-		solenoid1On = true;
+	else if (!m_xbox->GetRawButton(XBOX_LB) && buttonLastPressed[XBOX_LB] && m_driveGear2->Get())
+	{
+		m_driveGear1->Set(true);
+		m_driveGear2->Set(false);
 		m_selectedGear = 1;
 	}
 
@@ -582,8 +299,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	m_driveGear1->Set(solenoid1On);
-	m_driveGear2->Set(solenoid2On);
 	
 	// Controls for vision target criteria
 	// Not fully implemented
@@ -630,11 +345,9 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			sat--;
 		}
 	}
-	float spinspeed;
 	float leftspeed;
 	float rightspeed;
 	
-	spinspeed = 0;
 	// prevent jitter
 	if(fabs(m_LeftStickY) >= 0.001)
 	{
