@@ -8,7 +8,7 @@
 //MILKEN SPECIFIC definitions
 // Code revision (if this didn't udpate on the driver
 // station, the code didn't go through)
-#define CODE_REV 3
+#define CODE_REV 1
 
 // definitions of the xbox controllers buttons/triggers/sticks
 #define XBOX_A		1
@@ -398,7 +398,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			m_ingestionVictor2->Set(1);
 		} else {
 			m_ingestionVictor1->Set(0);
-			m_ingestionVictor2->Set(1);
+			m_ingestionVictor2->Set(0);
 		}
 	}
 
