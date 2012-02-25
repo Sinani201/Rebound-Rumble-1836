@@ -262,18 +262,38 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// increment the number of teleop periodic loops completed
 	m_telePeriodicLoops++;
+
+	// Set the button values at the beginning of the loop
+	// so that buttons are always consistent
+	buttonPressed[XBOX_A]	= m_xbox->GetRawButton(XBOX_A);
+	buttonPressed[XBOX_B]	= m_xbox->GetRawButton(XBOX_B);
+	buttonPressed[XBOX_X]	= m_xbox->GetRawButton(XBOX_X);
+	buttonPressed[XBOX_Y]	= m_xbox->GetRawButton(XBOX_Y);
+	buttonPressed[XBOX_LB]	= m_xbox->GetRawButton(XBOX_LB);
+	buttonPressed[XBOX_RB]	= m_xbox->GetRawButton(XBOX_RB);
+	buttonPressed[XBOX_BACK]= m_xbox->GetRawButton(XBOX_BACK);
+	buttonPressed[XBOX_START]=m_xbox->GetRawButton(XBOX_START);
+	buttonPressed[XBOX_LJ]	= m_xbox->GetRawButton(XBOX_LJ);
+	buttonPressed[XBOX_RJ]	= m_xbox->GetRawButton(XBOX_RJ);
 	
+	// Set the joystick variables
+	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
+	m_LeftStickY	= m_xbox->GetRawAxis(XBOX_LSY);
+	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
+	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
+	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
+
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
 	// if right bumper was released, and solenoid 1 is on, turn on solenoid2
-	if (!m_xbox->GetRawButton(XBOX_RB) && buttonLastPressed[XBOX_RB] && m_driveGear1->Get())
+	if (!buttonPressed[XBOX_RB] && buttonLastPressed[XBOX_RB] && m_driveGear1->Get())
 	{
 		m_driveGear1->Set(false);
 		m_driveGear2->Set(true);
 		m_selectedGear = 2;
 	}
 	// same stuff here, with solenoid 1
-	else if (!m_xbox->GetRawButton(XBOX_LB) && buttonLastPressed[XBOX_LB] && m_driveGear2->Get())
+	else if (!buttonPressed[XBOX_LB] && buttonLastPressed[XBOX_LB] && m_driveGear2->Get())
 	{
 		m_driveGear1->Set(true);
 		m_driveGear2->Set(false);
@@ -281,7 +301,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Control the bridge mechanism with solenoids
-	if(!m_xbox->GetRawButton(XBOX_LJ) && buttonLastPressed[XBOX_LJ])
+	if(!buttonPressed[XBOX_LJ] && buttonLastPressed[XBOX_LJ])
 	{
 		if(m_bridgeMechanism1->Get())
 		{
@@ -293,23 +313,16 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 	
-	// Set the joystick variables
-	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
-	m_LeftStickY	= m_xbox->GetRawAxis(XBOX_LSY);
-	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
-	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
-	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	
 	// Controls for vision target criteria
 	// Not fully implemented
-	if(m_xbox->GetRawButton(XBOX_LB))
+	if(buttonPressed[XBOX_LB])
 	{
 		if(selectedParticle != 0)
 		{
 			selectedParticle--;
 		}
 	}
-	else if(m_xbox->GetRawButton(XBOX_RB))
+	else if(buttonPressed[XBOX_RB])
 	{
 		if(selectedParticle < bigParticles)
 		{
@@ -317,28 +330,28 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 
-	if(m_xbox->GetRawButton(XBOX_Y))
+	if(buttonPressed[XBOX_Y])
 	{
 		if(lum < 219)
 		{
 			lum++;
 		}
 	}
-	else if(m_xbox->GetRawButton(XBOX_A))
+	else if(buttonPressed[XBOX_A])
 	{
 		if(lum > 0)
 		{
 			lum--;
 		}
 	}
-	if(m_xbox->GetRawButton(XBOX_START))
+	if(buttonPressed[XBOX_START])
 	{
 		if(sat < 245)
 		{
 			sat++;
 		}
 	}
-	else if(m_xbox->GetRawButton(XBOX_BACK))
+	else if(buttonPressed[XBOX_BACK])
 	{
 		if(sat > 0)
 		{
@@ -390,9 +403,9 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Ingestion victors controlled by right joystick button
-	if (!m_xbox->GetRawButton(XBOX_RJ) && buttonLastPressed[XBOX_RJ])
+	if (!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ])
 	{
-		if(m_ingestionVictor1->Get() == 0)
+		if(!m_ingestionVictor1->Get())
 		{
 			m_ingestionVictor1->Set(1);
 			m_ingestionVictor2->Set(1);
@@ -408,25 +421,25 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 
 	// set buttonLastPressed
 	// This allows us to see if a button has been released rather than pressed
-	if (m_xbox->GetRawButton(XBOX_RB))
+	if (buttonPressed[XBOX_RB])
 	{
 		buttonLastPressed[XBOX_RB] = true;
 	} else {
 		buttonLastPressed[XBOX_RB] = false;
 	}
-	if (m_xbox->GetRawButton(XBOX_LB))
+	if (buttonPressed[XBOX_LB])
 	{
 		buttonLastPressed[XBOX_LB] = true;
 	} else {
 		buttonLastPressed[XBOX_LB] = false;
 	}
-	if (m_xbox->GetRawButton(XBOX_LJ))
+	if (buttonPressed[XBOX_LJ])
 	{
 		buttonLastPressed[XBOX_LJ] = true;
 	} else {
 		buttonLastPressed[XBOX_LJ] = false;
 	}
-	if (m_xbox->GetRawButton(XBOX_RJ))
+	if (buttonPressed[XBOX_RJ])
 	{
 		buttonLastPressed[XBOX_RJ] = true;
 	} else {

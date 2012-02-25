@@ -22,6 +22,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// Allows us to see when a button has been released rather than
 	// pressed
 	bool buttonLastPressed[11];
+	bool buttonPressed[11];
 	
 	// Defines the variable used to point to the Compressor object
 	Compressor *m_compressor;
