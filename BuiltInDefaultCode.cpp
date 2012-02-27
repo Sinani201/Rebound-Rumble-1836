@@ -27,6 +27,19 @@
 #define XBOX_RSX	4 // right stick x
 #define XBOX_RSY	5 // right stick y
 #define XBOX_DPAD	6 // buggy
+////////////////////
+#define JOYSTICK_DIFF 10
+#define JOYSTICK_1	11
+#define JOYSTICK_2	12
+#define JOYSTICK_3	13
+#define JOYSTICK_4	14
+#define JOYSTICK_5	15
+#define JOYSTICK_6	16
+#define JOYSTICK_7	17
+#define JOYSTICK_8	18
+#define JOYSTICK_9	19
+#define JOYSTICK_10	20
+#define JOYSTICK_11	21
 
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
@@ -34,6 +47,10 @@
 #define PRESSURE_SWITCH_CHANNEL 4
 #define RELAY_SWITCH_CHANNEL 3
 #define DEFAULT_GEAR 1
+
+#define LUM_DEFAULT 224
+#define SAT_DEFAULT 0
+#define MIN_PARTICLE_SIZE 1000
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -52,10 +69,14 @@ int StartTask(BuiltinDefaultCode *bot)
 BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	printf("BuiltinDefaultCode Constructor Started\n");
 	
-	m_frontLeftVictor = new Victor(9);
-	m_rearLeftVictor = new Victor(10);
-	m_frontRightVictor = new Victor(7);
-	m_rearRightVictor = new Victor(8);
+//	m_frontLeftVictor = new Victor(9);
+//	m_rearLeftVictor = new Victor(10);
+//	m_frontRightVictor = new Victor(7);
+//	m_rearRightVictor = new Victor(8);
+	m_frontLeftVictor = new Victor(6);
+	m_rearLeftVictor = new Victor(5);
+	m_frontRightVictor = new Victor(3);
+	m_rearRightVictor = new Victor(2);
 	m_ingestionVictor1= new Victor(3);
 	m_ingestionVictor2= new Victor(5);
 	
@@ -70,6 +91,7 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_ds = DriverStation::GetInstance();
 	
 	m_xbox = new Joystick(1);
+	m_joystick = new Joystick(2);
 	
 	// Set up the compressor controls and the two solenoids
 	m_compressor = new Compressor(PRESSURE_SWITCH_CHANNEL,RELAY_SWITCH_CHANNEL);
@@ -136,8 +158,8 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 
 	// Ideal numbers for saturation and luminosity
 	// these represent the white vision targets
-	sat = 0;
-	lum = 224;
+	sat = SAT_DEFAULT;
+	lum = LUM_DEFAULT;
 
 	if(!m_autoModeBegun)
 	{
@@ -148,13 +170,11 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	
 void BuiltinDefaultCode::TeleopInit(void) {
 	m_telePeriodicLoops = 0;			// Reset the loop counter for teleop mode
-	/*
 	if(!m_autoModeBegun)
 	{
 		m_autoModeBegun = true;
 		m_vision->Start((int)this);
 	}
-	*/
 }
 
 void BuiltinDefaultCode::RunAutoThread()
@@ -185,7 +205,7 @@ void BuiltinDefaultCode::RunAutoThread()
 		for(i=0; i<numParticles; i++)
 		{
 			binImage->GetParticleAnalysisReport(i,&report);
-			if(report.particleArea > 1000)
+			if(report.particleArea > MIN_PARTICLE_SIZE)
 			{
 				selParticleNum[bigParticles] = i;
 				bigParticles++;
@@ -275,6 +295,18 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	buttonPressed[XBOX_START]=m_xbox->GetRawButton(XBOX_START);
 	buttonPressed[XBOX_LJ]	= m_xbox->GetRawButton(XBOX_LJ);
 	buttonPressed[XBOX_RJ]	= m_xbox->GetRawButton(XBOX_RJ);
+
+	buttonPressed[JOYSTICK_1]	= m_xbox->GetRawButton(1);
+	buttonPressed[JOYSTICK_2]	= m_xbox->GetRawButton(2);
+	buttonPressed[JOYSTICK_3]	= m_xbox->GetRawButton(3);
+	buttonPressed[JOYSTICK_4]	= m_xbox->GetRawButton(4);
+	buttonPressed[JOYSTICK_5]	= m_xbox->GetRawButton(5);
+	buttonPressed[JOYSTICK_6]	= m_xbox->GetRawButton(6);
+	buttonPressed[JOYSTICK_7]	= m_xbox->GetRawButton(7);
+	buttonPressed[JOYSTICK_8]	= m_xbox->GetRawButton(8);
+	buttonPressed[JOYSTICK_9]	= m_xbox->GetRawButton(9);
+	buttonPressed[JOYSTICK_10]	= m_xbox->GetRawButton(10);
+	buttonPressed[JOYSTICK_11]	= m_xbox->GetRawButton(11);
 	
 	// Set the joystick variables
 	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
@@ -315,14 +347,14 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	
 	// Controls for vision target criteria
 	// Not fully implemented
-	if(buttonPressed[XBOX_LB])
+	if(!buttonPressed[JOYSTICK_8] && buttonLastPressed[JOYSTICK_8])
 	{
 		if(selectedParticle != 0)
 		{
 			selectedParticle--;
 		}
 	}
-	else if(buttonPressed[XBOX_RB])
+	else if(!buttonPressed[JOYSTICK_9] && buttonLastPressed[JOYSTICK_9])
 	{
 		if(selectedParticle < bigParticles)
 		{
@@ -330,34 +362,46 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 
-	if(buttonPressed[XBOX_Y])
+	if(buttonPressed[JOYSTICK_5])
 	{
 		if(lum < 219)
 		{
 			lum++;
 		}
 	}
-	else if(buttonPressed[XBOX_A])
+	else if(buttonPressed[JOYSTICK_4])
 	{
 		if(lum > 0)
 		{
 			lum--;
 		}
 	}
-	if(buttonPressed[XBOX_START])
+	if(buttonPressed[JOYSTICK_3])
 	{
 		if(sat < 245)
 		{
 			sat++;
 		}
 	}
-	else if(buttonPressed[XBOX_BACK])
+	else if(buttonPressed[JOYSTICK_2])
 	{
 		if(sat > 0)
 		{
 			sat--;
 		}
 	}
+
+	// Reset to the default values for the colors
+	// if necessary
+	if(buttonPressed[JOYSTICK_10])
+	{
+		lum = LUM_DEFAULT;
+	}
+	if(buttonPressed[JOYSTICK_11])
+	{
+		sat = SAT_DEFAULT;
+	}
+
 	float leftspeed;
 	float rightspeed;
 	
@@ -402,6 +446,18 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		rightspeed = -1;
 	}
 
+	if(buttonPressed[XBOX_A])
+	{
+		// Spin the robot to face the vision target
+		// The normalized value gives us a value between
+		// -1 and 1, so we can plug it in directly to the
+		// rightspeed/leftspeed values
+		rightspeed = selReport.center_mass_x_normalized;
+		leftspeed = -rightspeed;
+	}
+
+	m_robotDrive->TankDrive(leftspeed,rightspeed);
+	
 	// Ingestion victors controlled by right joystick button
 	if (!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ])
 	{
@@ -415,9 +471,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 
-	// Tank drive VS Arcade drive (not decided yet)
-	//m_robotDrive->TankDrive(leftspeed,rightspeed);
-	m_robotDrive->ArcadeDrive(m_xbox,true); // not sure which joystick this is
 
 	// set buttonLastPressed
 	// This allows us to see if a button has been released rather than pressed
@@ -445,12 +498,23 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	} else {
 		buttonLastPressed[XBOX_RJ] = false;
 	}
+	if (buttonPressed[JOYSTICK_8])
+	{
+		buttonLastPressed[JOYSTICK_8] = true;
+	} else {
+		buttonLastPressed[JOYSTICK_8] = false;
+	}
+	if (buttonPressed[JOYSTICK_9])
+	{
+		buttonLastPressed[JOYSTICK_9] = true;
+	} else {
+		buttonLastPressed[JOYSTICK_9] = false;
+	}
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
-	int encoderRaw = m_Encoder->GetRaw();
+	//int encoderRaw = m_Encoder->GetRaw();
 	
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"E:%d",encoderRaw);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"r%d,AL:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_selectedGear);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
 }

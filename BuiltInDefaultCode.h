@@ -17,12 +17,13 @@ class BuiltinDefaultCode : public IterativeRobot {
 
 	// The xbox controller (this is probably what we will end up using)
 	Joystick *m_xbox;
+	Joystick *m_joystick;
 	
 	// This checks if the button was pressed in the last loop
 	// Allows us to see when a button has been released rather than
 	// pressed
-	bool buttonLastPressed[11];
-	bool buttonPressed[11];
+	bool buttonLastPressed[22];
+	bool buttonPressed[22];
 	
 	// Defines the variable used to point to the Compressor object
 	Compressor *m_compressor;
