@@ -332,8 +332,13 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		m_selectedGear = 1;
 	}
 
+	// Allow the bridge mechanism to be controlled by the joystick
+	m_bridgeMechanism1->Set(button)
+	m_vridgeMechanism2->Set(buttonPressed[JOYSTICK_11]);
+
 	// Control the bridge mechanism with solenoids
-	if(!buttonPressed[XBOX_LJ] && buttonLastPressed[XBOX_LJ])
+	if((!buttonPressed[XBOX_LJ] && buttonLastPressed[XBOX_LJ]) ||
+	   (!buttonPressed[JOYSTICK_11] && buttonLastPressed[JOYSTICK_11]))
 	{
 		if(m_bridgeMechanism1->Get())
 		{
@@ -391,6 +396,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 
+	/*
 	// Reset to the default values for the colors
 	// if necessary
 	if(buttonPressed[JOYSTICK_10])
@@ -401,7 +407,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	{
 		sat = SAT_DEFAULT;
 	}
-
+	*/
 	float leftspeed;
 	float rightspeed;
 	
@@ -458,8 +464,9 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 
 	m_robotDrive->TankDrive(leftspeed,rightspeed);
 	
-	// Ingestion victors controlled by right joystick button
-	if (!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ])
+	// Ingestion victors controlled by right joystick button OR the big joystick
+	if ((!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ]) ||
+		(!buttonPressed[JOYSTICK_10] && buttonPressed[JOYSTICK_10]))
 	{
 		if(!m_ingestionVictor1->Get())
 		{
@@ -510,6 +517,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	} else {
 		buttonLastPressed[JOYSTICK_9] = false;
 	}
+	buttonLastPressed[JOYSTICK_10] = buttonPressed[JOYSTICK_10];
+	buttonLastPressed[JOYSTICK_11] = buttonPressed[JOYSTICK_11];
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	//int encoderRaw = m_Encoder->GetRaw();
