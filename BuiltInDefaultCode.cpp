@@ -481,42 +481,13 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 
 	// set buttonLastPressed
 	// This allows us to see if a button has been released rather than pressed
-	if (buttonPressed[XBOX_RB])
-	{
-		buttonLastPressed[XBOX_RB] = true;
-	} else {
-		buttonLastPressed[XBOX_RB] = false;
-	}
-	if (buttonPressed[XBOX_LB])
-	{
-		buttonLastPressed[XBOX_LB] = true;
-	} else {
-		buttonLastPressed[XBOX_LB] = false;
-	}
-	if (buttonPressed[XBOX_LJ])
-	{
-		buttonLastPressed[XBOX_LJ] = true;
-	} else {
-		buttonLastPressed[XBOX_LJ] = false;
-	}
-	if (buttonPressed[XBOX_RJ])
-	{
-		buttonLastPressed[XBOX_RJ] = true;
-	} else {
-		buttonLastPressed[XBOX_RJ] = false;
-	}
-	if (buttonPressed[JOYSTICK_8])
-	{
-		buttonLastPressed[JOYSTICK_8] = true;
-	} else {
-		buttonLastPressed[JOYSTICK_8] = false;
-	}
-	if (buttonPressed[JOYSTICK_9])
-	{
-		buttonLastPressed[JOYSTICK_9] = true;
-	} else {
-		buttonLastPressed[JOYSTICK_9] = false;
-	}
+	
+	buttonLastPressed[XBOX_RB] = buttonPressed[XBOX_RB];
+	buttonLastPressed[XBOX_LB] = buttonPressed[XBOX_LB];
+	buttonLastPressed[XBOX_LJ] = buttonPressed[XBOX_LJ];
+	buttonLastPressed[XBOX_RJ] = buttonPressed[XBOX_RJ];
+	buttonLastPressed[JOYSTICK_8] = buttonPressed[JOYSTICK_8];
+	buttonLastPressed[JOYSTICK_9] = buttonPressed[JOYSTICK_9];
 	buttonLastPressed[JOYSTICK_10] = buttonPressed[JOYSTICK_10];
 	buttonLastPressed[JOYSTICK_11] = buttonPressed[JOYSTICK_11];
 
