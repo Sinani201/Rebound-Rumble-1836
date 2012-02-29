@@ -332,10 +332,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		m_selectedGear = 1;
 	}
 
-	// Allow the bridge mechanism to be controlled by the joystick
-	m_bridgeMechanism1->Set(button)
-	m_vridgeMechanism2->Set(buttonPressed[JOYSTICK_11]);
-
 	// Control the bridge mechanism with solenoids
 	if((!buttonPressed[XBOX_LJ] && buttonLastPressed[XBOX_LJ]) ||
 	   (!buttonPressed[JOYSTICK_11] && buttonLastPressed[JOYSTICK_11]))
