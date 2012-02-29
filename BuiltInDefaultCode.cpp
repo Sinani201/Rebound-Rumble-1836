@@ -3,6 +3,7 @@
 #include "WPILib.h"
 #include "BuiltInDefaultCode.h"
 #include <math.h>
+#include <string.h>
 #include <DriverStationLCD.h>
 
 //MILKEN SPECIFIC definitions
@@ -40,6 +41,7 @@
 #define JOYSTICK_9	19
 #define JOYSTICK_10	20
 #define JOYSTICK_11	21
+#define MAX_BUTTONS 21
 
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
@@ -174,6 +176,11 @@ void BuiltinDefaultCode::TeleopInit(void) {
 	{
 		m_autoModeBegun = true;
 		m_vision->Start((int)this);
+	}
+
+	for(int i=1; i<=MAX_BUTTONS; i++)
+	{
+		buttonLastPressed[i] = false;
 	}
 }
 
@@ -477,15 +484,10 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 
 	// set buttonLastPressed
 	// This allows us to see if a button has been released rather than pressed
-	
-	buttonLastPressed[XBOX_RB] = buttonPressed[XBOX_RB];
-	buttonLastPressed[XBOX_LB] = buttonPressed[XBOX_LB];
-	buttonLastPressed[XBOX_LJ] = buttonPressed[XBOX_LJ];
-	buttonLastPressed[XBOX_RJ] = buttonPressed[XBOX_RJ];
-	buttonLastPressed[JOYSTICK_8] = buttonPressed[JOYSTICK_8];
-	buttonLastPressed[JOYSTICK_9] = buttonPressed[JOYSTICK_9];
-	buttonLastPressed[JOYSTICK_10] = buttonPressed[JOYSTICK_10];
-	buttonLastPressed[JOYSTICK_11] = buttonPressed[JOYSTICK_11];
+	for(int i=1; i<=MAX_BUTTONS; i++)
+	{
+		buttonLastPressed[i] = buttonPressed[i];
+	}
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	//int encoderRaw = m_Encoder->GetRaw();
