@@ -1,5 +1,3 @@
-// now with open-source!
-
 #include "WPILib.h"
 #include "BuiltInDefaultCode.h"
 #include <math.h>
