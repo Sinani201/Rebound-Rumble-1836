@@ -73,10 +73,10 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 //	m_rearLeftVictor = new Victor(10);
 //	m_frontRightVictor = new Victor(7);
 //	m_rearRightVictor = new Victor(8);
-	m_frontLeftVictor = new Victor(6);
-	m_rearLeftVictor = new Victor(5);
-	m_frontRightVictor = new Victor(3);
-	m_rearRightVictor = new Victor(2);
+	m_frontLeftVictor = new Victor(9);
+	m_rearLeftVictor = new Victor(10);
+	m_frontRightVictor = new Victor(7);
+	m_rearRightVictor = new Victor(8);
 	m_ingestionVictor1= new Victor(3);
 	m_ingestionVictor2= new Victor(5);
 	
