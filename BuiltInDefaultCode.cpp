@@ -522,9 +522,13 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		{
 			m_ingestionVictor1->Set(1);
 			m_ingestionVictor2->Set(1);
+			m_elevatorVictor1->Set(1);
+			m_elevatorVictor2->Set(1);
 		} else {
 			m_ingestionVictor1->Set(0);
 			m_ingestionVictor2->Set(0);
+			m_elevatorVictor1->Set(0);
+			m_elevatorVictor2->Set(0);
 		}
 	}
 
