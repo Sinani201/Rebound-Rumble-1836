@@ -11,6 +11,10 @@ class BuiltinDefaultCode : public IterativeRobot {
 	Victor *m_rearRightVictor;
 	Victor *m_ingestionVictor1;
 	Victor *m_ingestionVictor2;
+	Victor *m_shooterVictor1;
+	Victor *m_shooterVictor2;
+	Victor *m_elevatorVictor1;
+	Victor *m_elevatorVictor2;
 	
 	// Declare a variable to use to access the driver station object
 	DriverStation *m_ds;						// driver station object
@@ -51,6 +55,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	float m_RightStickX;
 	float m_RightStickY;
 	float m_Trig;
+	float m_JoystickSlide;
 	
 	// Local variables to count the number of periodic loops performed
 	UINT32 m_autoPeriodicLoops;

@@ -40,6 +40,19 @@
 #define JOYSTICK_10	20
 #define JOYSTICK_11	21
 #define MAX_BUTTONS 21
+#define JOYSTICK_SLIDE 3
+
+// Where victors are located
+#define VIC_LEFT1		9
+#define VIC_LEFT2		10
+#define VIC_RIGHT1		7
+#define VIC_RIGHT2		8
+#define VIC_INGEST1		3
+#define VIC_INGEST2		5
+#define VIC_SHOOTER1	1
+#define VIC_SHOOTER2	2
+#define VIC_ELEVATOR1	4
+#define VIC_ELEVATOR2	6
 
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
@@ -73,12 +86,19 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 //	m_rearLeftVictor = new Victor(10);
 //	m_frontRightVictor = new Victor(7);
 //	m_rearRightVictor = new Victor(8);
-	m_frontLeftVictor = new Victor(9);
-	m_rearLeftVictor = new Victor(10);
-	m_frontRightVictor = new Victor(7);
-	m_rearRightVictor = new Victor(8);
-	m_ingestionVictor1= new Victor(3);
-	m_ingestionVictor2= new Victor(5);
+	m_frontLeftVictor = new Victor(VIC_LEFT1);
+	m_rearLeftVictor = new Victor(VIC_LEFT2);
+	m_frontRightVictor = new Victor(VIC_RIGHT1);
+	m_rearRightVictor = new Victor(VIC_RIGHT2);
+	
+	m_ingestionVictor1= new Victor(VIC_INGEST1);
+	m_ingestionVictor2= new Victor(VIC_INGEST2);
+
+	m_shooterVictor1 = new Victor(VIC_SHOOTER1);
+	m_shooterVictor2 = new Victor(VIC_SHOOTER2);
+
+	m_elevatorVictor1 = new Victor(VIC_ELEVATOR1);
+	m_elevatorVictor2 = new Victor(VIC_ELEVATOR2);
 	
 	// Create a robot using standard right/left robot drive on PWMS 7, 8, 9, and 10
 	// This uses victors which are declared above
@@ -99,6 +119,7 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_driveGear2 = new Solenoid(2);
 	m_bridgeMechanism1 = new Solenoid(3);
 	m_bridgeMechanism2 = new Solenoid(4);
+	m_selectedGear = DEFAULT_GEAR;
 	m_selectedGear = DEFAULT_GEAR;
 	
 	// achannel and bchannel are set to 1 and 2, but those probably
@@ -278,11 +299,27 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
+
+	if(m_autoPeriodicLoops < 400)
+	{
+		m_elevatorVictor1->Set(1);
+		m_elevatorVictor2->Set(2);
+	} else if(m_autoPeriodicLoops > 400 && m_autoPeriodicLoops < 600)
+	{
+		m_elevatorVictor1->Set(0);
+		m_elevatorVictor2->Set(0);
+		m_shooterVictor1->Set(0.5);
+		m_shooterVictor1->Set(0.5);
+	} else {
+		m_elevatorVictor1->Set(0);
+		m_elevatorVictor2->Set(0);
+		m_shooterVictor1->Set(0);
+		m_shooterVictor1->Set(0);
+	}
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d",CODE_REV,m_autoPeriodicLoops,m_visionPeriodicLoops);
 	m_lcd->UpdateLCD();
 }
-
 
 void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// increment the number of teleop periodic loops completed
@@ -301,17 +338,17 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	buttonPressed[XBOX_LJ]	= m_xbox->GetRawButton(XBOX_LJ);
 	buttonPressed[XBOX_RJ]	= m_xbox->GetRawButton(XBOX_RJ);
 
-	buttonPressed[JOYSTICK_1]	= m_xbox->GetRawButton(1);
-	buttonPressed[JOYSTICK_2]	= m_xbox->GetRawButton(2);
-	buttonPressed[JOYSTICK_3]	= m_xbox->GetRawButton(3);
-	buttonPressed[JOYSTICK_4]	= m_xbox->GetRawButton(4);
-	buttonPressed[JOYSTICK_5]	= m_xbox->GetRawButton(5);
-	buttonPressed[JOYSTICK_6]	= m_xbox->GetRawButton(6);
-	buttonPressed[JOYSTICK_7]	= m_xbox->GetRawButton(7);
-	buttonPressed[JOYSTICK_8]	= m_xbox->GetRawButton(8);
-	buttonPressed[JOYSTICK_9]	= m_xbox->GetRawButton(9);
-	buttonPressed[JOYSTICK_10]	= m_xbox->GetRawButton(10);
-	buttonPressed[JOYSTICK_11]	= m_xbox->GetRawButton(11);
+	buttonPressed[JOYSTICK_1]	= m_joystick->GetRawButton(1);
+	buttonPressed[JOYSTICK_2]	= m_joystick->GetRawButton(2);
+	buttonPressed[JOYSTICK_3]	= m_joystick->GetRawButton(3);
+	buttonPressed[JOYSTICK_4]	= m_joystick->GetRawButton(4);
+	buttonPressed[JOYSTICK_5]	= m_joystick->GetRawButton(5);
+	buttonPressed[JOYSTICK_6]	= m_joystick->GetRawButton(6);
+	buttonPressed[JOYSTICK_7]	= m_joystick->GetRawButton(7);
+	buttonPressed[JOYSTICK_8]	= m_joystick->GetRawButton(8);
+	buttonPressed[JOYSTICK_9]	= m_joystick->GetRawButton(9);
+	buttonPressed[JOYSTICK_10]	= m_joystick->GetRawButton(10);
+	buttonPressed[JOYSTICK_11]	= m_joystick->GetRawButton(11);
 	
 	// Set the joystick variables
 	m_LeftStickX	= m_xbox->GetRawAxis(XBOX_LSX);
@@ -319,6 +356,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
+	m_JoystickSlide	= m_joystick->GetRawAxis(JOYSTICK_SLIDE);
 
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
@@ -395,6 +433,17 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		{
 			sat--;
 		}
+	}
+	if(buttonPressed[JOYSTICK_1])
+	{
+		// SHOOT THE BALL! TO VICTORY!
+		// JoystickSlide normally goes from -1 to 1
+		// so this makes sure we never get a negative value
+		m_shooterVictor1->Set((m_JoystickSlide+1)/2);
+		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
+	} else {
+		m_shooterVictor1->Set(0);
+		m_shooterVictor2->Set(0);
 	}
 
 	/*
