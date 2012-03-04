@@ -47,12 +47,12 @@
 #define VIC_LEFT2		10
 #define VIC_RIGHT1		7
 #define VIC_RIGHT2		8
-#define VIC_INGEST1		3
-#define VIC_INGEST2		4
+#define VIC_INGEST1		5
+#define VIC_INGEST2		6
 #define VIC_SHOOTER1	1
 #define VIC_SHOOTER2	2
-#define VIC_ELEVATOR1	5 
-#define VIC_ELEVATOR2	6
+#define VIC_ELEVATOR1	3 
+#define VIC_ELEVATOR2	4
 
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
