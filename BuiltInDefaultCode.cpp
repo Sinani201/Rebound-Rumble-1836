@@ -48,10 +48,10 @@
 #define VIC_RIGHT1		7
 #define VIC_RIGHT2		8
 #define VIC_INGEST1		3
-#define VIC_INGEST2		5
+#define VIC_INGEST2		4
 #define VIC_SHOOTER1	1
 #define VIC_SHOOTER2	2
-#define VIC_ELEVATOR1	4
+#define VIC_ELEVATOR1	5 
 #define VIC_ELEVATOR2	6
 
 // These define the controls to the Compressor
@@ -543,6 +543,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	//int encoderRaw = m_Encoder->GetRaw();
 	
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"%f",(m_JoystickSlide+1)/2);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
