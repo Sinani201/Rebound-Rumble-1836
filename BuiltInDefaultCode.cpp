@@ -515,8 +515,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_robotDrive->TankDrive(leftspeed,rightspeed);
 	
 	// Ingestion victors controlled by right joystick button OR the big joystick
-	if ((!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ]) ||
-		(!buttonPressed[JOYSTICK_10] && buttonLastPressed[JOYSTICK_10]))
+	if (buttonPressed[XBOX_RJ] || buttonPressed[JOYSTICK_10])
 	{
 		if(!m_ingestionVictor1->Get() != 0)
 		{
