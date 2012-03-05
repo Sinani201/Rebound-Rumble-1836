@@ -51,7 +51,7 @@
 #define VIC_INGEST2		6
 #define VIC_SHOOTER1	1
 #define VIC_SHOOTER2	2
-#define VIC_ELEVATOR1	3 
+#define VIC_ELEVATOR1	3
 #define VIC_ELEVATOR2	4
 
 // These define the controls to the Compressor
@@ -439,7 +439,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		// SHOOT THE BALL! TO VICTORY!
 		// JoystickSlide normally goes from -1 to 1
 		// so this makes sure we never get a negative value
-		m_shooterVictor1->Set((m_JoystickSlide+1)/2);
+		m_shooterVictor1->Set(-(m_JoystickSlide+1)/2);
 		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
 	} else {
 		m_shooterVictor1->Set(0);
@@ -516,15 +516,15 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	
 	// Ingestion victors controlled by right joystick button OR the big joystick
 	if ((!buttonPressed[XBOX_RJ] && buttonLastPressed[XBOX_RJ]) ||
-		(!buttonPressed[JOYSTICK_10] && buttonPressed[JOYSTICK_10]))
+		(!buttonPressed[JOYSTICK_10] && buttonLastPressed[JOYSTICK_10]))
 	{
-		if(!m_ingestionVictor1->Get())
+		if(!m_ingestionVictor1->Get() != 0)
 		{
 			m_ingestionVictor1->Set(1);
 			m_ingestionVictor2->Set(1);
-			m_elevatorVictor1->Set(1);
+			m_elevatorVictor1->Set(-1);
 			m_elevatorVictor2->Set(1);
-		} else {
+
 			m_ingestionVictor1->Set(0);
 			m_ingestionVictor2->Set(0);
 			m_elevatorVictor1->Set(0);
