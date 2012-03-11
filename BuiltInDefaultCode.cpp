@@ -394,11 +394,33 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Getting rid of balls by moving the elevator backwards
+	// This also controls the ingestion
 	if(buttonPressed[JOYSTICK_2])
 	{
 		m_elevatorVictor1->Set(-1);
 		m_elevatorVictor2->Set(-1);
+		m_ingestionVictor1->Set(1);
+		m_ingestionVictor2->Set(1);
+	} else {
+		m_elevatorVictor1->Set(0);
+		m_elevatorVictor2->Set(0);
+		m_ingestionVictor1->Set(0);
+		m_ingestionVictor2->Set(0);
 	}
+
+	// Ingestion victors can also be controlled by right joystick button
+	if (buttonPressed[XBOX_RJ])
+	{
+		if(!m_ingestionVictor1->Get() != 0)
+		{
+			m_ingestionVictor1->Set(1);
+			m_ingestionVictor2->Set(1);
+
+			m_ingestionVictor1->Set(0);
+			m_ingestionVictor2->Set(0);
+		}
+	}
+
 
 	// Controls for vision target criteria
 	// Not fully implemented
@@ -514,19 +536,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 
 	m_robotDrive->TankDrive(leftspeed,rightspeed);
 	
-	// Ingestion victors controlled by right joystick button OR the big joystick
-	if (buttonPressed[XBOX_RJ] || buttonPressed[JOYSTICK_10])
-	{
-		if(!m_ingestionVictor1->Get() != 0)
-		{
-			m_ingestionVictor1->Set(1);
-			m_ingestionVictor2->Set(1);
-
-			m_ingestionVictor1->Set(0);
-			m_ingestionVictor2->Set(0);
-		}
-	}
-
 
 	// set buttonLastPressed
 	// This allows us to see if a button has been released rather than pressed
