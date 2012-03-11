@@ -299,25 +299,13 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
-
-	if(m_autoPeriodicLoops < 400)
-	{
-		m_elevatorVictor1->Set(1);
-		m_elevatorVictor2->Set(2);
-	} else if(m_autoPeriodicLoops > 400 && m_autoPeriodicLoops < 600)
-	{
-		m_elevatorVictor1->Set(0);
-		m_elevatorVictor2->Set(0);
-		m_shooterVictor1->Set(0.5);
-		m_shooterVictor1->Set(0.5);
-	} else {
-		m_elevatorVictor1->Set(0);
-		m_elevatorVictor2->Set(0);
-		m_shooterVictor1->Set(0);
-		m_shooterVictor1->Set(0);
-	}
 	
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"rev%d,AL:%d,VL:%d",CODE_REV,m_autoPeriodicLoops,m_visionPeriodicLoops);
+	// Just tell the elevator/shooter to go forward
+	m_elevatorVictor1->Set(1);
+	m_elevatorVictor2->Set(1);
+	m_shooterVictor1->Set(0.7);
+	m_shooterVictor2->Set(0.7);
+
 	m_lcd->UpdateLCD();
 }
 
@@ -388,7 +376,30 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			m_bridgeMechanism2->Set(false);
 		}
 	}
-	
+
+	// Shooting moves the elevator and shooter
+	if(buttonPressed[JOYSTICK_1])
+	{
+		// JoystickSlide normally goes from -1 to 1
+		// so this makes sure we never get a negative value
+		m_shooterVictor1->Set(-(m_JoystickSlide+1)/2);
+		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
+		m_elevatorVictor1->Set(1);
+		m_elevatorVictor2->Set(1);
+	} else {
+		m_shooterVictor1->Set(0);
+		m_shooterVictor2->Set(0);
+		m_elevatorVictor1->Set(0);
+		m_elevatorVictor2->Set(0);
+	}
+
+	// Getting rid of balls by moving the elevator backwards
+	if(buttonPressed[JOYSTICK_2])
+	{
+		m_elevatorVictor1->Set(-1);
+		m_elevatorVictor2->Set(-1);
+	}
+
 	// Controls for vision target criteria
 	// Not fully implemented
 	if(!buttonPressed[JOYSTICK_8] && buttonLastPressed[JOYSTICK_8])
@@ -433,17 +444,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		{
 			sat--;
 		}
-	}
-	if(buttonPressed[JOYSTICK_1])
-	{
-		// SHOOT THE BALL! TO VICTORY!
-		// JoystickSlide normally goes from -1 to 1
-		// so this makes sure we never get a negative value
-		m_shooterVictor1->Set(-(m_JoystickSlide+1)/2);
-		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
-	} else {
-		m_shooterVictor1->Set(0);
-		m_shooterVictor2->Set(0);
 	}
 
 	/*
@@ -521,13 +521,9 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		{
 			m_ingestionVictor1->Set(1);
 			m_ingestionVictor2->Set(1);
-			m_elevatorVictor1->Set(-1);
-			m_elevatorVictor2->Set(1);
 
 			m_ingestionVictor1->Set(0);
 			m_ingestionVictor2->Set(0);
-			m_elevatorVictor1->Set(0);
-			m_elevatorVictor2->Set(0);
 		}
 	}
 
