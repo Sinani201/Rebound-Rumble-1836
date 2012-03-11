@@ -40,7 +40,7 @@
 #define JOYSTICK_10	20
 #define JOYSTICK_11	21
 #define MAX_BUTTONS 21
-#define JOYSTICK_SLIDE 3
+#define JOYSTICK_KNOB 3
 
 // Where victors are located
 #define VIC_LEFT1		9
@@ -344,7 +344,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	m_JoystickKnob	= m_joystick->GetRawAxis(JOYSTICK_SLIDE);
+	m_JoystickKnob	= m_joystick->GetRawAxis(JOYSTICK_KNOB);
 
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
