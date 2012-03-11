@@ -40,7 +40,7 @@
 #define JOYSTICK_10	20
 #define JOYSTICK_11	21
 #define MAX_BUTTONS 21
-#define JOYSTICK_SLIDE 3
+#define JOYSTICK_KNOB 3
 
 // Where victors are located
 #define VIC_LEFT1		9
@@ -344,7 +344,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	m_JoystickSlide	= m_joystick->GetRawAxis(JOYSTICK_SLIDE);
+	m_JoystickKnob	= m_joystick->GetRawAxis(JOYSTICK_KNOB);
 
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
@@ -380,10 +380,13 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Shooting moves the elevator and shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
-		// JoystickSlide normally goes from -1 to 1
-		// so this makes sure we never get a negative value
-		m_shooterVictor1->Set(-(m_JoystickSlide+1)/2);
-		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
+		if(m_JoystickKnob < -0.999)
+		{
+			// JoystickKnob normally goes from -1 to 1
+			// so this makes sure we never get a negative value
+			m_shooterVictor1->Set(-(m_JoystickKnob+1)/2);
+			m_shooterVictor2->Set((m_JoystickKnob+1)/2);
+		}
 		m_elevatorVictor1->Set(1);
 		m_elevatorVictor2->Set(1);
 	} else {
@@ -547,7 +550,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	//int encoderRaw = m_Encoder->GetRaw();
 	
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"%f",(m_JoystickSlide+1)/2);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"%f",(m_JoystickKnob+1)/2);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
