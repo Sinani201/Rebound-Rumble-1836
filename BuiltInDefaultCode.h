@@ -16,9 +16,6 @@ class BuiltinDefaultCode : public IterativeRobot {
 	Victor *m_elevatorVictor1;
 	Victor *m_elevatorVictor2;
 	
-	// Declare a variable to use to access the driver station object
-	DriverStation *m_ds;						// driver station object
-
 	// The xbox controller (this is probably what we will end up using)
 	Joystick *m_xbox;
 	Joystick *m_joystick;
