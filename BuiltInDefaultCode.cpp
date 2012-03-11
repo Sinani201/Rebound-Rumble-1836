@@ -344,7 +344,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	m_RightStickX	= m_xbox->GetRawAxis(XBOX_RSX);
 	m_RightStickY	= m_xbox->GetRawAxis(XBOX_RSY);
 	m_Trig			= m_xbox->GetRawAxis(XBOX_TRIG);
-	m_JoystickSlide	= m_joystick->GetRawAxis(JOYSTICK_SLIDE);
+	m_JoystickKnob	= m_joystick->GetRawAxis(JOYSTICK_SLIDE);
 
 	// Drive gear, with solenoids
 	// One of these is the slow gear, one is the fast gear
@@ -377,13 +377,34 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 	}
 
+	if(buttonPressed[JOYSTICK_4])
+	{
+		altShooterSpeed = 0.3;
+	}
+	if(buttonPressed[JOYSTICK_3])
+	{
+		altShooterSpeed = 0.6;
+	}
+	if(buttonPressed[JOYSTICK_5])
+	{
+		altShooterSpeed = 0.9;
+	}
+
 	// Shooting moves the elevator and shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
-		// JoystickSlide normally goes from -1 to 1
-		// so this makes sure we never get a negative value
-		m_shooterVictor1->Set(-(m_JoystickSlide+1)/2);
-		m_shooterVictor2->Set((m_JoystickSlide+1)/2);
+		// If the knob isn't being used, use
+		// alt shooter speeds
+		if(m_JoystickKnob <= -0.9998)
+		{
+			m_shooterVictor1->Set(altShooterSpeed);
+			m_shooterVictor2->Set(altShooterSpeed);
+		} else {
+			// JoystickKnob normally goes from -1 to 1
+			// so this makes sure we never get a negative value
+			m_shooterVictor1->Set(-(m_JoystickKnob+1)/2);
+			m_shooterVictor2->Set((m_JoystickKnob+1)/2);
+		}
 		m_elevatorVictor1->Set(1);
 		m_elevatorVictor2->Set(1);
 	} else {
@@ -547,7 +568,8 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
 	//int encoderRaw = m_Encoder->GetRaw();
 	
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"%f",(m_JoystickSlide+1)/2);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"Alt: %f",altShooterSpeed);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"Knob:%f",(m_JoystickKnob+1)/2);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 	//END OF TELEOPERATED PERIODIC CODE (Not really)
