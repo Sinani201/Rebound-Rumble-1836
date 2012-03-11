@@ -554,7 +554,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		rightspeed = selReport.center_mass_x_normalized;
 
 		// If it is very close, make sure it doesn't move too slowly
-		if(fabs(rightspeed) < 0.002 && rightspeed => 0.00001)
+		if(fabs(rightspeed) < 0.002 && rightspeed >= 0.00001)
 		{
 			if(rightspeed > 0)
 			{
