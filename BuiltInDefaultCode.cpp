@@ -552,6 +552,18 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		// -1 and 1, so we can plug it in directly to the
 		// rightspeed/leftspeed values
 		rightspeed = selReport.center_mass_x_normalized;
+
+		// If it is very close, make sure it doesn't move too slowly
+		if(fabs(rightspeed) < 0.002 && rightspeed => 0.00001)
+		{
+			if(rightspeed > 0)
+			{
+				rightspeed = 0.002;
+			} else {
+				rightspeed = -0.002;
+			}
+		}
+
 		leftspeed = -rightspeed;
 	}
 
