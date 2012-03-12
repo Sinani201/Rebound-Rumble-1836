@@ -578,8 +578,9 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
-	//int encoderRaw = m_Encoder->GetRaw();
+	int encoderRaw = m_Encoder->GetRaw();
 	
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"Enc: %d",encoderRaw);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"Alt: %f",altShooterSpeed);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"Knob:%f",(m_JoystickKnob+1)/2);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
