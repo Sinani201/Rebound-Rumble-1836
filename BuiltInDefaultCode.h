@@ -77,6 +77,9 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// experimental driver station LCD
 	DriverStationLCD* m_lcd;
 	
+	void victorPair(int n, bool on, bool rev);
+	void victorPair(int n, float pow);
+
 	public:
 	BuiltinDefaultCode(void);
 	void RobotInit(void);

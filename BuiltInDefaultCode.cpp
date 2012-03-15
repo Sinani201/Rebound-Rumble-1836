@@ -53,6 +53,13 @@
 #define VIC_SHOOTER2	2
 #define VIC_ELEVATOR1	3
 #define VIC_ELEVATOR2	4
+// The pair numbers don't actually mean anything,
+// they're just used to identify in victorPair()
+#define PAIR_LEFT		1
+#define PAIR_RIGHT		2
+#define PAIR_INGEST		3
+#define PAIR_SHOOTER	4
+#define PAIR_ELEVATOR	5
 
 // These define the controls to the Compressor
 // The Pressure Switch Channel is a GPIO Channel
@@ -390,55 +397,39 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		altShooterSpeed = 0.9;
 	}
 
-	// Shooting moves the elevator and shooter
+	// Joystick 1 moves the shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
 		// If the knob isn't being used, use
 		// alt shooter speeds
 		if(m_JoystickKnob <= -0.9998)
 		{
-			m_shooterVictor1->Set(altShooterSpeed);
-			m_shooterVictor2->Set(altShooterSpeed);
+			victorPair(PAIR_SHOOTER,altShooterSpeed);
 		} else {
 			// JoystickKnob normally goes from -1 to 1
 			// so this makes sure we never get a negative value
-			m_shooterVictor1->Set(-(m_JoystickKnob+1)/2);
-			m_shooterVictor2->Set((m_JoystickKnob+1)/2);
+			victorPair(PAIR_SHOOTER,(m_JoystickKnob+1)/2);
 		}
-		m_elevatorVictor1->Set(1);
-		m_elevatorVictor2->Set(1);
 	} else {
-		m_shooterVictor1->Set(0);
-		m_shooterVictor2->Set(0);
-		m_elevatorVictor1->Set(0);
-		m_elevatorVictor2->Set(0);
+		victorPair(PAIR_SHOOTER,false,false);
 	}
+
+	// Shooter button also controls elevator
+	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_1],false);
 
 	// Getting rid of balls by moving the elevator backwards
 	// This also controls the ingestion
-	if(buttonPressed[JOYSTICK_2])
-	{
-		m_elevatorVictor1->Set(-1);
-		m_elevatorVictor2->Set(-1);
-		m_ingestionVictor1->Set(1);
-		m_ingestionVictor2->Set(1);
-	} else {
-		m_elevatorVictor1->Set(0);
-		m_elevatorVictor2->Set(0);
-		m_ingestionVictor1->Set(0);
-		m_ingestionVictor2->Set(0);
-	}
+	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_2],true);
+	victorPair(PAIR_INGEST,buttonPressed[JOYSTICK_2],false);
 
 	// Ingestion victors can also be controlled by right joystick button
 	if (buttonPressed[XBOX_RJ])
 	{
 		if(!m_ingestionVictor1->Get() != 0)
 		{
-			m_ingestionVictor1->Set(1);
-			m_ingestionVictor2->Set(1);
-
-			m_ingestionVictor1->Set(0);
-			m_ingestionVictor2->Set(0);
+			victorPair(PAIR_INGEST,true,false);
+		} else {
+			victorPair(PAIR_INGEST,false,false);
 		}
 	}
 
@@ -582,10 +573,44 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"Enc: %d",encoderRaw);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"Alt: %f",altShooterSpeed);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line5,"Knob:%f",(m_JoystickKnob+1)/2);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"Knob:%f",(m_JoystickKnob+1)/2);
+	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
-	//END OF TELEOPERATED PERIODIC CODE (Not really)
+}
+
+void BuiltinDefaultCode::victorPair(int n,bool on,bool rev)
+{
+	if(on)
+	{
+		if(rev)
+		{
+			victorPair(n,-1);
+		} else {
+			victorPair(n,1);
+		}
+	} else {
+		victorPair(n,0);
+	}
+}
+
+void BuiltinDefaultCode::victorPair(int n, float pow)
+{
+	switch(n)
+	{
+	case PAIR_INGEST:
+		m_ingestionVictor1->Set(pow);
+		m_ingestionVictor2->Set(pow);
+		break;
+
+	case PAIR_SHOOTER:
+		m_shooterVictor1->Set(-pow);
+		m_shooterVictor2->Set(pow);
+		break;
+
+	case PAIR_ELEVATOR:
+		m_elevatorVictor1->Set(pow);
+		m_elevatorVictor2->Set(pow);
+	}
 }
 
 START_ROBOT_CLASS(BuiltinDefaultCode);
