@@ -192,7 +192,7 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	if(!m_autoModeBegun)
 	{
 		m_autoModeBegun = true;
-		m_vision->Start((int)this);
+		//m_vision->Start((int)this);
 	}
 }
 	
@@ -201,7 +201,7 @@ void BuiltinDefaultCode::TeleopInit(void) {
 	if(!m_autoModeBegun)
 	{
 		m_autoModeBegun = true;
-		m_vision->Start((int)this);
+		//m_vision->Start((int)this);
 	}
 
 	for(int i=1; i<=MAX_BUTTONS; i++)
