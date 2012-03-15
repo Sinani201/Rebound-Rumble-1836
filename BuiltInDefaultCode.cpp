@@ -188,7 +188,7 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	bigParticles = 0;
 
 	// Start the clock
-	m_clockstart = clock();
+	starttime = GetFPGATime() / 1000;
 
 	// Ideal numbers for saturation and luminosity
 	// these represent the white vision targets
@@ -313,16 +313,14 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
 	
-	if(clock() - m_clockstart <= MOVE_FORWARD_SECONDS*CLOCKS_PER_SEC)
+	if((GetFPGATime() - starttime)/1000 <= MOVE_FORWARD_SECONDS*1000)
 	{
 		// If we should be moving forward, move forward
 		m_robotDrive->TankDrive(0.5,0.5);
 	} else {
 		// Just tell the elevator/shooter to go forward
-		m_elevatorVictor1->Set(1);
-		m_elevatorVictor2->Set(1);
-		m_shooterVictor1->Set(0.7);
-		m_shooterVictor2->Set(0.7);
+		victorPair(PAIR_ELEVATOR,true,false);
+		victorPair(PAIR_SHOOTER,true,false);
 	}
 
 	m_lcd->UpdateLCD();
@@ -422,12 +420,11 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			// so this makes sure we never get a negative value
 			victorPair(PAIR_SHOOTER,(m_JoystickKnob+1)/2);
 		}
+		// Shooter button also controls elevator
+		victorPair(PAIR_ELEVATOR,true,false);
 	} else {
 		victorPair(PAIR_SHOOTER,false,false);
 	}
-
-	// Shooter button also controls elevator
-	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_1],false);
 
 	// Getting rid of balls by moving the elevator backwards
 	// This also controls the ingestion
@@ -621,7 +618,7 @@ void BuiltinDefaultCode::victorPair(int n, float pow)
 
 	case PAIR_ELEVATOR:
 		m_elevatorVictor1->Set(pow);
-		m_elevatorVictor2->Set(pow);
+		m_elevatorVictor2->Set(-pow);
 	}
 }
 

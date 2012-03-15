@@ -21,7 +21,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	Joystick *m_joystick;
 
 	// Clock for autonomous mode
-	clock_t m_clock;
+	UINT32 starttime;
 	
 	// This checks if the button was pressed in the last loop
 	// Allows us to see when a button has been released rather than
