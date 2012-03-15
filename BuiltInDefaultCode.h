@@ -19,6 +19,9 @@ class BuiltinDefaultCode : public IterativeRobot {
 	// The xbox controller (this is probably what we will end up using)
 	Joystick *m_xbox;
 	Joystick *m_joystick;
+
+	// Clock for autonomous mode
+	clock_t m_clock;
 	
 	// This checks if the button was pressed in the last loop
 	// Allows us to see when a button has been released rather than

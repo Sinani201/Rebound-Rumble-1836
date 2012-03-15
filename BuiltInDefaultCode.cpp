@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "BuiltInDefaultCode.h"
 #include <math.h>
+#include <time.h>
 #include <string.h>
 #include <DriverStationLCD.h>
 
@@ -71,6 +72,8 @@
 #define LUM_DEFAULT 224
 #define SAT_DEFAULT 0
 #define MIN_PARTICLE_SIZE 1000
+
+#define MOVE_FORWARD_SECONDS 0
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -183,6 +186,9 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	m_autoPeriodicLoops = 0;
 	selectedParticle = 0;
 	bigParticles = 0;
+
+	// Start the clock
+	m_clockstart = clock();
 
 	// Ideal numbers for saturation and luminosity
 	// these represent the white vision targets
@@ -307,11 +313,17 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
 	
-	// Just tell the elevator/shooter to go forward
-	m_elevatorVictor1->Set(1);
-	m_elevatorVictor2->Set(1);
-	m_shooterVictor1->Set(0.7);
-	m_shooterVictor2->Set(0.7);
+	if(clock() - m_clockstart <= MOVE_FORWARD_SECONDS*CLOCKS_PER_SEC)
+	{
+		// If we should be moving forward, move forward
+		m_robotDrive->TankDrive(0.5,0.5);
+	} else {
+		// Just tell the elevator/shooter to go forward
+		m_elevatorVictor1->Set(1);
+		m_elevatorVictor2->Set(1);
+		m_shooterVictor1->Set(0.7);
+		m_shooterVictor2->Set(0.7);
+	}
 
 	m_lcd->UpdateLCD();
 }
