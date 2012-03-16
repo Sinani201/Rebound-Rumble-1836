@@ -73,7 +73,7 @@
 #define SAT_DEFAULT 0
 #define MIN_PARTICLE_SIZE 1000
 
-#define MOVE_FORWARD_SECONDS 0
+#define MOVE_FORWARD_SECONDS 3
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -188,7 +188,7 @@ void BuiltinDefaultCode::AutonomousInit(void) {
 	bigParticles = 0;
 
 	// Start the clock
-	starttime = GetFPGATime() / 1000;
+	starttime = GetFPGATime();
 
 	// Ideal numbers for saturation and luminosity
 	// these represent the white vision targets
@@ -313,7 +313,7 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
 	
-	if((GetFPGATime() - starttime)/1000 <= MOVE_FORWARD_SECONDS*1000)
+	if(GetFPGATime() - starttime <= MOVE_FORWARD_SECONDS*1000000)
 	{
 		// If we should be moving forward, move forward
 		m_robotDrive->TankDrive(0.5,0.5);
@@ -617,7 +617,7 @@ void BuiltinDefaultCode::victorPair(int n, float pow)
 		break;
 
 	case PAIR_ELEVATOR:
-		m_elevatorVictor1->Set(pow);
+//		m_elevatorVictor1->Set(pow);
 		m_elevatorVictor2->Set(-pow);
 	}
 }
