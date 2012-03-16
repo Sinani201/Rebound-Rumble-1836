@@ -407,11 +407,15 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		altShooterSpeed = 0.9;
 	}
 
-	// Getting rid of balls by moving the elevator backwards
-	// This also controls the ingestion
-	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_2],true);
+	// Control ingestion with button 2
 	victorPair(PAIR_INGEST,buttonPressed[JOYSTICK_2],false);
-
+	if(buttonPressed[JOYSTICK_2])
+	{
+		victorPair(PAIR_ELEVATOR,-0.25);
+	} else {
+		victorPair(PAIR_ELEVATOR,false,false);
+	}
+	
 	// Joystick 1 moves the shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
@@ -428,6 +432,10 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		// Shooter button also controls elevator
 		victorPair(PAIR_ELEVATOR,true,false);
 	} else {
+		if(!buttonPressed[JOYSTICK_2])
+		{
+			victorPair(PAIR_ELEVATOR,false,false);
+		}
 		victorPair(PAIR_SHOOTER,false,false);
 	}
 
