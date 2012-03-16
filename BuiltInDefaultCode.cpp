@@ -407,6 +407,11 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		altShooterSpeed = 0.9;
 	}
 
+	// Getting rid of balls by moving the elevator backwards
+	// This also controls the ingestion
+	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_2],true);
+	victorPair(PAIR_INGEST,buttonPressed[JOYSTICK_2],false);
+
 	// Joystick 1 moves the shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
@@ -425,11 +430,6 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	} else {
 		victorPair(PAIR_SHOOTER,false,false);
 	}
-
-	// Getting rid of balls by moving the elevator backwards
-	// This also controls the ingestion
-	victorPair(PAIR_ELEVATOR,buttonPressed[JOYSTICK_2],true);
-	victorPair(PAIR_INGEST,buttonPressed[JOYSTICK_2],false);
 
 	// Ingestion victors can also be controlled by right joystick button
 	if (buttonPressed[XBOX_RJ])
