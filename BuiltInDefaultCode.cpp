@@ -130,7 +130,6 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 	m_bridgeMechanism1 = new Solenoid(3);
 	m_bridgeMechanism2 = new Solenoid(4);
 	m_selectedGear = DEFAULT_GEAR;
-	m_selectedGear = DEFAULT_GEAR;
 	
 	// achannel and bchannel are set to 1 and 2, but those probably
 	// aren't the right values
@@ -312,16 +311,17 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
-	
 	if(GetFPGATime() - starttime <= MOVE_FORWARD_SECONDS*1000000)
 	{
 		// If we should be moving forward, move forward
-		m_robotDrive->TankDrive(0.5,0.5);
+		m_robotDrive->TankDrive(-0.5,-0.5);
 	} else {
 		// Just tell the elevator/shooter to go forward
 		victorPair(PAIR_ELEVATOR,true,false);
 		victorPair(PAIR_SHOOTER,true,false);
 	}
+
+m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Time:%d",GetFPGATime());
 
 	m_lcd->UpdateLCD();
 }
