@@ -316,7 +316,8 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 		// If we should be moving forward, move forward
 		m_robotDrive->TankDrive(-0.5,-0.5);
 	} else {
-		// Just tell the elevator/shooter to go forward
+		// Just tell the elevator/shooter/elevator to go forward
+		victorPair(PAIR_INGEST,true,false);
 		victorPair(PAIR_ELEVATOR,true,false);
 		victorPair(PAIR_SHOOTER,true,false);
 	}
