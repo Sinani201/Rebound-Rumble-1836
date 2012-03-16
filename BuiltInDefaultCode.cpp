@@ -617,8 +617,8 @@ void BuiltinDefaultCode::victorPair(int n, float pow)
 		break;
 
 	case PAIR_ELEVATOR:
-//		m_elevatorVictor1->Set(pow);
-		m_elevatorVictor2->Set(-pow);
+		m_elevatorVictor1->Set(pow);
+		m_elevatorVictor2->Set(pow);
 	}
 }
 
