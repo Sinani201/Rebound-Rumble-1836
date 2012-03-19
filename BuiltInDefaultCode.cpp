@@ -73,7 +73,7 @@
 #define SAT_DEFAULT 0
 #define MIN_PARTICLE_SIZE 1000
 
-#define MOVE_FORWARD_SECONDS 3
+#define AUTON_WAIT_PERIOD 7
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -309,6 +309,7 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 }
 
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
+	/*
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
 	if(GetFPGATime() - starttime <= MOVE_FORWARD_SECONDS*1000000)
@@ -322,8 +323,15 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 		victorPair(PAIR_ELEVATOR,true,false);
 		victorPair(PAIR_SHOOTER,true,false);
 	}
+	*/
+	
+	if(GetFPGATime() - starttime >= AUTON_WAIT_PERIOD*1000000)
+	{
+		victorPair(PAIR_INGEST,true,true);
+		victorPair(PAIR_ELEVATOR,true,true);
+	}
 
-m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Time:%d",GetFPGATime());
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Time:%d",GetFPGATime());
 
 	m_lcd->UpdateLCD();
 }
