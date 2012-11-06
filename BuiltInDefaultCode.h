@@ -82,6 +82,7 @@ class BuiltinDefaultCode : public IterativeRobot {
 	
 	void victorPair(int n, bool on, bool rev);
 	void victorPair(int n, float pow);
+	void driveTank(float left, float right);
 
 	public:
 	BuiltinDefaultCode(void);

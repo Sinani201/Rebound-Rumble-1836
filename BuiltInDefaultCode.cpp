@@ -8,7 +8,7 @@
 //MILKEN SPECIFIC definitions
 // Code revision (if this didn't udpate on the driver
 // station, the code didn't go through)
-#define CODE_REV 1
+#define CODE_REV 16
 
 // definitions of the xbox controllers buttons/triggers/sticks
 #define XBOX_A		1
@@ -44,16 +44,26 @@
 #define JOYSTICK_KNOB 3
 
 // Where victors are located
+/*
+// Old victors
 #define VIC_LEFT1		9
 #define VIC_LEFT2		10
 #define VIC_RIGHT1		7
 #define VIC_RIGHT2		8
+*/
+
+// New victors
+#define VIC_LEFT1	8
+#define VIC_LEFT2	7
+#define VIC_RIGHT1	10
+#define VIC_RIGHT2	9
+
 #define VIC_INGEST1		5
 #define VIC_INGEST2		6
-#define VIC_SHOOTER1	1
-#define VIC_SHOOTER2	2
-#define VIC_ELEVATOR1	3
-#define VIC_ELEVATOR2	4
+#define VIC_SHOOTER1	3
+#define VIC_SHOOTER2	4
+#define VIC_ELEVATOR1	1
+#define VIC_ELEVATOR2	2
 // The pair numbers don't actually mean anything,
 // they're just used to identify in victorPair()
 #define PAIR_LEFT		1
@@ -73,7 +83,8 @@
 #define SAT_DEFAULT 0
 #define MIN_PARTICLE_SIZE 1000
 
-#define AUTON_WAIT_PERIOD 7
+#define AUTON_WAIT_PERIOD 4
+#define MOVE_FORWARD_SECONDS 4
 
 // Start vision processing seperate task
 int StartTask(BuiltinDefaultCode *bot)
@@ -109,7 +120,7 @@ BuiltinDefaultCode::BuiltinDefaultCode(void)	{
 
 	m_elevatorVictor1 = new Victor(VIC_ELEVATOR1);
 	m_elevatorVictor2 = new Victor(VIC_ELEVATOR2);
-	
+
 	// Create a robot using standard right/left robot drive on PWMS 7, 8, 9, and 10
 	// This uses victors which are declared above
 	m_robotDrive = new RobotDrive(m_frontLeftVictor,
@@ -255,7 +266,7 @@ void BuiltinDefaultCode::RunAutoThread()
 			selectedParticle = bigParticles - 1;
 		}
 		
-		// Later on, the code will find the right particle numers itself.
+		// Later on, the code will find the right particle numbers itself.
 		// This version just takes particle 0 because in my tests
 		// it has always been the largest
 		if(selectedParticle >= 0)
@@ -309,22 +320,24 @@ void BuiltinDefaultCode::DisabledPeriodic(void)  {
 }
 
 void BuiltinDefaultCode::AutonomousPeriodic(void) {
-	/*
+	// qauto
+	 
 	// count number of times this routine has been called.
 	m_autoPeriodicLoops++;
 	if(GetFPGATime() - starttime <= MOVE_FORWARD_SECONDS*1000000)
 	{
 		// If we should be moving forward, move forward
-		m_robotDrive->TankDrive(-0.5,-0.5);
+		driveTank(-0.5,-0.5);
 	} else if(GetFPGATime()-starttime <= (MOVE_FORWARD_SECONDS+1)*1000000)
 	{
 		// Just tell the elevator/shooter/elevator to go forward
 		victorPair(PAIR_INGEST,true,false);
-		victorPair(PAIR_ELEVATOR,true,false);
-		victorPair(PAIR_SHOOTER,true,false);
+		victorPair(PAIR_ELEVATOR,0.75);
+		victorPair(PAIR_SHOOTER,1,false);
 	}
-	*/
 	
+	
+	/*
 	if(GetFPGATime() - starttime >= AUTON_WAIT_PERIOD*1000000)
 	{
 		victorPair(PAIR_INGEST,true,true);
@@ -334,6 +347,8 @@ void BuiltinDefaultCode::AutonomousPeriodic(void) {
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Time:%d",GetFPGATime());
 
 	m_lcd->UpdateLCD();
+	*/
+	
 }
 
 void BuiltinDefaultCode::TeleopPeriodic(void) {
@@ -421,11 +436,17 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	victorPair(PAIR_INGEST,buttonPressed[JOYSTICK_2],false);
 	if(buttonPressed[JOYSTICK_2])
 	{
-		victorPair(PAIR_ELEVATOR,-0.25);
+		victorPair(PAIR_ELEVATOR,-0.75);
 	} else {
-		victorPair(PAIR_ELEVATOR,false,false);
+		if(buttonPressed[JOYSTICK_1]) {
+			victorPair(PAIR_ELEVATOR,0.75);
+		} else {
+			victorPair(PAIR_ELEVATOR,false,false);
+		}
 	}
+
 	
+	/*
 	// Joystick 1 moves the shooter
 	if(buttonPressed[JOYSTICK_1])
 	{
@@ -448,7 +469,15 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		}
 		victorPair(PAIR_SHOOTER,false,false);
 	}
+	*/
 
+	if(buttonPressed[JOYSTICK_3]) {
+		victorPair(PAIR_SHOOTER,-(m_JoystickKnob-1)/2);
+	} else {
+		victorPair(PAIR_SHOOTER,false,false);
+	}
+
+	/* 
 	// Ingestion victors can also be controlled by right joystick button
 	if (buttonPressed[XBOX_RJ])
 	{
@@ -459,54 +488,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 			victorPair(PAIR_INGEST,false,false);
 		}
 	}
-
-
-	// Controls for vision target criteria
-	// Not fully implemented
-	if(!buttonPressed[JOYSTICK_8] && buttonLastPressed[JOYSTICK_8])
-	{
-		if(selectedParticle != 0)
-		{
-			selectedParticle--;
-		}
-	}
-	else if(!buttonPressed[JOYSTICK_9] && buttonLastPressed[JOYSTICK_9])
-	{
-		if(selectedParticle < bigParticles)
-		{
-			selectedParticle++;
-		}
-	}
-
-	if(buttonPressed[JOYSTICK_5])
-	{
-		if(lum < 219)
-		{
-			lum++;
-		}
-	}
-	else if(buttonPressed[JOYSTICK_4])
-	{
-		if(lum > 0)
-		{
-			lum--;
-		}
-	}
-	if(buttonPressed[JOYSTICK_3])
-	{
-		if(sat < 245)
-		{
-			sat++;
-		}
-	}
-	else if(buttonPressed[JOYSTICK_2])
-	{
-		if(sat > 0)
-		{
-			sat--;
-		}
-	}
-
+	*/
 	/*
 	// Reset to the default values for the colors
 	// if necessary
@@ -563,29 +545,7 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 		rightspeed = -1;
 	}
 
-	if(buttonPressed[XBOX_A])
-	{
-		// Spin the robot to face the vision target
-		// The normalized value gives us a value between
-		// -1 and 1, so we can plug it in directly to the
-		// rightspeed/leftspeed values
-		rightspeed = selReport.center_mass_x_normalized;
-
-		// If it is very close, make sure it doesn't move too slowly
-		if(fabs(rightspeed) < 0.002 && rightspeed >= 0.00001)
-		{
-			if(rightspeed > 0)
-			{
-				rightspeed = 0.002;
-			} else {
-				rightspeed = -0.002;
-			}
-		}
-
-		leftspeed = -rightspeed;
-	}
-
-	m_robotDrive->TankDrive(leftspeed,rightspeed);
+	driveTank(leftspeed,rightspeed);
 	
 
 	// set buttonLastPressed
@@ -596,12 +556,12 @@ void BuiltinDefaultCode::TeleopPeriodic(void) {
 	}
 
 	// Encoder stuff. I haven't tested this and I'm not entirely sure what it does
-	int encoderRaw = m_Encoder->GetRaw();
+	//int encoderRaw = m_Encoder->GetRaw();
 	
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line2,"Time:%d",GetFPGATime());
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"Enc: %d",encoderRaw);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line3,"rev %d",CODE_REV);
 	m_lcd->PrintfLine(DriverStationLCD::kUser_Line4,"Alt: %f",altShooterSpeed);
-	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"Knob:%f",(m_JoystickKnob+1)/2);
+	m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"Knob:%f",-(m_JoystickKnob-1)/2);
 	//m_lcd->PrintfLine(DriverStationLCD::kUser_Line6,"AL:%d,V:%d,G:%d",CODE_REV,m_telePeriodicLoops,m_visionPeriodicLoops,m_selectedGear);
 	m_lcd->UpdateLCD();
 }
@@ -621,6 +581,11 @@ void BuiltinDefaultCode::victorPair(int n,bool on,bool rev)
 	}
 }
 
+void BuiltinDefaultCode::driveTank(float left, float right)
+{
+	m_robotDrive->TankDrive(left,right);
+}
+
 void BuiltinDefaultCode::victorPair(int n, float pow)
 {
 	switch(n)
@@ -631,13 +596,13 @@ void BuiltinDefaultCode::victorPair(int n, float pow)
 		break;
 
 	case PAIR_SHOOTER:
-		m_shooterVictor1->Set(-pow);
+		m_shooterVictor1->Set(pow);
 		m_shooterVictor2->Set(pow);
 		break;
 
 	case PAIR_ELEVATOR:
 		m_elevatorVictor1->Set(pow);
-		m_elevatorVictor2->Set(pow);
+		//m_elevatorVictor2->Set(pow);
 	}
 }
 
